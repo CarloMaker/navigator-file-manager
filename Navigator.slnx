@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Navigator.Core/Navigator.Core.csproj" />
+    <Project Path="src/Navigator.Infrastructure/Navigator.Infrastructure.csproj" />
+    <Project Path="src/Navigator.Shell/Navigator.Shell.csproj" />
+    <Project Path="src/Navigator.Presentation/Navigator.Presentation.csproj" />
+    <Project Path="src/Navigator.App/Navigator.App.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Navigator.Core.Tests/Navigator.Core.Tests.csproj" />
+    <Project Path="tests/Navigator.Presentation.Tests/Navigator.Presentation.Tests.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,342 @@
+<Application x:Class="Navigator.App.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:conv="clr-namespace:Navigator.App.Converters"
+             ThemeMode="System"
+             ShutdownMode="OnMainWindowClose">
+    <Application.Resources>
+        <ResourceDictionary>
+            <!-- I pennelli "Nav.*" (colori di Esplora file) sono aggiunti da Theming/ExplorerTheme.cs all'avvio. -->
+
+            <FontFamily x:Key="Nav.IconFont">Segoe Fluent Icons, Segoe MDL2 Assets</FontFamily>
+            <FontFamily x:Key="Nav.UiFont">Segoe UI Variable Text, Segoe UI</FontFamily>
+            <FontFamily x:Key="Nav.MonoFont">Cascadia Mono, Consolas</FontFamily>
+
+            <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+            <conv:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibility" />
+            <conv:NullToCollapsedConverter x:Key="NullToCollapsed" />
+            <conv:EnumToVisibilityConverter x:Key="EnumToVisibility" />
+            <conv:IconConverter x:Key="Icon" />
+            <conv:HiddenToOpacityConverter x:Key="HiddenToOpacity" />
+            <conv:ImagePathConverter x:Key="ImagePath" />
+            <conv:StringFormatConverter x:Key="StringFormat" />
+            <conv:PathExistsToOpacityConverter x:Key="PathExistsToOpacity" />
+
+            <!-- Menu e descrizioni comandi ereditano il font dal controllo da cui si aprono: sui pulsanti a icona
+                 sarebbe il font dei simboli e il testo diventerebbe quadratini. Qui si impone il font normale. -->
+            <Style TargetType="ContextMenu" BasedOn="{StaticResource {x:Type ContextMenu}}">
+                <Setter Property="FontFamily" Value="{StaticResource Nav.UiFont}" />
+            </Style>
+            <Style TargetType="ToolTip" BasedOn="{StaticResource {x:Type ToolTip}}">
+                <Setter Property="FontFamily" Value="{StaticResource Nav.UiFont}" />
+                <Setter Property="FontSize" Value="12" />
+            </Style>
+
+            <!-- Pulsante con sola icona (indietro, avanti, su, aggiorna...) -->
+            <Style x:Key="Nav.IconButton" TargetType="ButtonBase">
+                <Setter Property="Foreground" Value="{DynamicResource Nav.Text}" />
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="FontFamily" Value="{StaticResource Nav.IconFont}" />
+                <Setter Property="FontSize" Value="16" />
+                <Setter Property="Width" Value="36" />
+                <Setter Property="Height" Value="32" />
+                <Setter Property="Cursor" Value="Arrow" />
+                <Setter Property="Focusable" Value="False" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ButtonBase">
+                            <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="4">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Nav.ButtonHover}" />
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Nav.ButtonPressed}" />
+                                </Trigger>
+                                <Trigger Property="ToggleButton.IsChecked" Value="True">
+                                    <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Nav.ButtonPressed}" />
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter Property="Opacity" Value="0.35" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Pulsante della barra dei comandi: icona + testo -->
+            <Style x:Key="Nav.CommandButton" TargetType="ButtonBase" BasedOn="{StaticResource Nav.IconButton}">
+                <Setter Property="Width" Value="Auto" />
+                <Setter Property="Padding" Value="10,0" />
+                <Setter Property="FontFamily" Value="{StaticResource Nav.UiFont}" />
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ButtonBase">
+                            <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                <ContentPresenter VerticalAlignment="Center" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Nav.ButtonHover}" />
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Nav.ButtonPressed}" />
+                                </Trigger>
+                                <Trigger Property="ToggleButton.IsChecked" Value="True">
+                                    <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Nav.ButtonPressed}" />
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter Property="Opacity" Value="0.35" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Glifo dentro un pulsante con testo -->
+            <Style x:Key="Nav.Glyph" TargetType="TextBlock">
+                <Setter Property="FontFamily" Value="{StaticResource Nav.IconFont}" />
+                <Setter Property="FontSize" Value="16" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="Margin" Value="0,0,8,0" />
+            </Style>
+
+            <!-- Pulsanti della barra del titolo (riduci, ingrandisci, chiudi) -->
+            <Style x:Key="Nav.CaptionButton" TargetType="Button">
+                <Setter Property="Foreground" Value="{DynamicResource Nav.Text}" />
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="FontFamily" Value="{StaticResource Nav.IconFont}" />
+                <Setter Property="FontSize" Value="10" />
+                <Setter Property="Width" Value="46" />
+                <Setter Property="Focusable" Value="False" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="Bd" Background="{TemplateBinding Background}">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Nav.ButtonHover}" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="Nav.CloseCaptionButton" TargetType="Button" BasedOn="{StaticResource Nav.CaptionButton}">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="Bd" Background="{TemplateBinding Background}">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Nav.CloseHover}" />
+                                    <Setter Property="Foreground" Value="White" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Segmento della barra indirizzi -->
+            <Style x:Key="Nav.BreadcrumbButton" TargetType="Button">
+                <Setter Property="Foreground" Value="{DynamicResource Nav.Text}" />
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="Padding" Value="6,3" />
+                <Setter Property="Focusable" Value="False" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                <ContentPresenter VerticalAlignment="Center" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Nav.ButtonHover}" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Riga della lista file: colori di selezione di Esplora file -->
+            <Style x:Key="Nav.FileRow" TargetType="ListViewItem">
+                <Setter Property="Foreground" Value="{DynamicResource Nav.Text}" />
+                <Setter Property="Height" Value="28" />
+                <Setter Property="Padding" Value="0" />
+                <Setter Property="Margin" Value="0" />
+                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ListViewItem">
+                            <Border x:Name="Bd" Background="Transparent" BorderBrush="Transparent" BorderThickness="1"
+                                    CornerRadius="4" Margin="4,1" SnapsToDevicePixels="True">
+                                <GridViewRowPresenter Columns="{TemplateBinding GridView.ColumnCollection}"
+                                                      Content="{TemplateBinding Content}"
+                                                      VerticalAlignment="Center" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Nav.ItemHover}" />
+                                </Trigger>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Nav.ItemSelected}" />
+                                    <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Nav.ItemSelectedBorder}" />
+                                </Trigger>
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="IsSelected" Value="True" />
+                                        <Condition Property="IsMouseOver" Value="True" />
+                                    </MultiTrigger.Conditions>
+                                    <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Nav.ItemSelectedHover}" />
+                                </MultiTrigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Intestazioni di colonna piatte, come in Esplora file -->
+            <Style x:Key="Nav.ColumnHeader" TargetType="GridViewColumnHeader">
+                <Setter Property="Foreground" Value="{DynamicResource Nav.TextSecondary}" />
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="HorizontalContentAlignment" Value="Left" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="GridViewColumnHeader">
+                            <Grid>
+                                <Border x:Name="Bd" Background="Transparent" Padding="10,6,6,6">
+                                    <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center" />
+                                </Border>
+                                <Rectangle Width="1" HorizontalAlignment="Right" Margin="0,6" Fill="{DynamicResource Nav.Divider}" />
+                                <Thumb x:Name="PART_HeaderGripper" HorizontalAlignment="Right" Width="8" Margin="0,0,-4,0" Cursor="SizeWE">
+                                    <Thumb.Template>
+                                        <ControlTemplate TargetType="Thumb">
+                                            <Border Background="Transparent" />
+                                        </ControlTemplate>
+                                    </Thumb.Template>
+                                </Thumb>
+                            </Grid>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Nav.ItemHover}" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Elementi di segnalibri, sessioni e Drop Stack -->
+            <Style x:Key="Nav.PaneItem" TargetType="ListBoxItem">
+                <Setter Property="Foreground" Value="{DynamicResource Nav.Text}" />
+                <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ListBoxItem">
+                            <Border x:Name="Bd" Background="Transparent" CornerRadius="4" Margin="4,1" Padding="8,5">
+                                <ContentPresenter />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Nav.NavHover}" />
+                                </Trigger>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Nav.NavSelected}" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="Nav.PaneList" TargetType="ListBox">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="Padding" Value="0" />
+                <Setter Property="ItemContainerStyle" Value="{StaticResource Nav.PaneItem}" />
+                <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
+            </Style>
+
+            <!-- Titolo di sezione nei pannelli laterali -->
+            <Style x:Key="Nav.SectionHeader" TargetType="TextBlock">
+                <Setter Property="Foreground" Value="{DynamicResource Nav.TextSecondary}" />
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="FontWeight" Value="SemiBold" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="Margin" Value="12,0,0,0" />
+            </Style>
+
+            <!-- Scheda nella barra del titolo -->
+            <Style x:Key="Nav.TabItem" TargetType="ListBoxItem">
+                <Setter Property="Foreground" Value="{DynamicResource Nav.Text}" />
+                <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ListBoxItem">
+                            <Border x:Name="Bd" Background="Transparent" CornerRadius="8,8,0,0"
+                                    Margin="0,8,2,0" Padding="12,0,6,0" MaxWidth="240" Height="32">
+                                <ContentPresenter VerticalAlignment="Center" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Nav.TabHover}" />
+                                </Trigger>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Nav.TabActive}" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Casella di testo piatta (indirizzo, ricerca, filtro) -->
+            <Style x:Key="Nav.Input" TargetType="TextBox">
+                <Setter Property="Foreground" Value="{DynamicResource Nav.Text}" />
+                <Setter Property="CaretBrush" Value="{DynamicResource Nav.Text}" />
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="VerticalContentAlignment" Value="Center" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="TextBox">
+                            <ScrollViewer x:Name="PART_ContentHost" Focusable="False"
+                                          HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"
+                                          VerticalAlignment="Center" />
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Contenitore di una casella: bordo che diventa del colore d'accento con il focus -->
+            <Style x:Key="Nav.InputBox" TargetType="Border">
+                <Setter Property="Background" Value="{DynamicResource Nav.InputBackground}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource Nav.InputBorder}" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="CornerRadius" Value="4" />
+                <Setter Property="Height" Value="32" />
+                <Style.Triggers>
+                    <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                        <Setter Property="BorderBrush" Value="{DynamicResource Nav.Accent}" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

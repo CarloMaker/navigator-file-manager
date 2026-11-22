@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>Navigator.App</RootNamespace>
+    <AssemblyName>Navigator</AssemblyName>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\Navigator.ico</ApplicationIcon>
+    <!-- Le strutture P/Invoke della shell sono scritte per processi a 64 bit -->
+    <PlatformTarget>x64</PlatformTarget>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>false</SelfContained>
+  </PropertyGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Navigator.ico" />
+    <Resource Include="Assets\Navigator-256.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="AvalonEdit" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Navigator.Core\Navigator.Core.csproj" />
+    <ProjectReference Include="..\Navigator.Infrastructure\Navigator.Infrastructure.csproj" />
+    <ProjectReference Include="..\Navigator.Shell\Navigator.Shell.csproj" />
+    <ProjectReference Include="..\Navigator.Presentation\Navigator.Presentation.csproj" />
+  </ItemGroup>
+</Project>

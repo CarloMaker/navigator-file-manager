@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Navigator.Core</RootNamespace>
+    <NeutralLanguage>it</NeutralLanguage>
+  </PropertyGroup>
+</Project>

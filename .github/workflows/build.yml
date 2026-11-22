@@ -1,0 +1,46 @@
+# Compila e prova a ogni push; per un tag "v*" (es. v0.1.0) pubblica anche l'exe in una Release.
+name: Build
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Build
+        run: dotnet build Navigator.slnx -c Release
+
+      - name: Test
+        run: dotnet test Navigator.slnx -c Release --no-build
+
+      - name: Publish exe
+        run: >
+          dotnet publish src/Navigator.App -c Release -r win-x64 --self-contained true
+          -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:EnableCompressionInSingleFile=true -p:DebugType=none -o publish
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Navigator-win-x64
+          path: publish/Navigator.exe
+
+      - name: Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: publish/Navigator.exe
+          body_path: CHANGELOG.md

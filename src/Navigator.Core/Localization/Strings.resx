@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="AboutDataFolder" xml:space="preserve"><value>Dati: {0}</value></data>
+  <data name="AboutTitle" xml:space="preserve"><value>Informazioni su Navigator</value></data>
+  <data name="AccessDenied" xml:space="preserve"><value>Accesso negato a questa cartella.</value></data>
+  <data name="AddBookmarkTitle" xml:space="preserve"><value>Aggiungi segnalibro</value></data>
+  <data name="AddCurrentFolder" xml:space="preserve"><value>Aggiungi la cartella corrente</value></data>
+  <data name="AddCurrentFolderTip" xml:space="preserve"><value>Aggiungi la cartella corrente (Ctrl+D)</value></data>
+  <data name="AddToBookmarks" xml:space="preserve"><value>Aggiungi ai segnalibri</value></data>
+  <data name="AddToDropStack" xml:space="preserve"><value>Aggiungi al Drop Stack</value></data>
+  <data name="All" xml:space="preserve"><value>Tutti</value></data>
+  <data name="AppTagline" xml:space="preserve"><value>File manager a schede ispirato a CubicExplorer.</value></data>
+  <data name="BackTip" xml:space="preserve"><value>Indietro (Alt+Freccia sinistra)</value></data>
+  <data name="Bookmark" xml:space="preserve"><value>Segnalibro</value></data>
+  <data name="BookmarkFolderTip" xml:space="preserve"><value>Aggiungi la cartella ai segnalibri (Ctrl+D)</value></data>
+  <data name="BookmarkMissing" xml:space="preserve"><value>Il segnalibro "{0}" punta a un elemento che non esiste più:
+{1}</value></data>
+  <data name="BookmarkNamePrompt" xml:space="preserve"><value>Nome del segnalibro:</value></data>
+  <data name="Cancel" xml:space="preserve"><value>Annulla</value></data>
+  <data name="CannotRenameDrive" xml:space="preserve"><value>Impossibile rinominare un'unità.</value></data>
+  <data name="ClearFiltersTip" xml:space="preserve"><value>Azzera i filtri</value></data>
+  <data name="Close" xml:space="preserve"><value>Chiudi</value></data>
+  <data name="CloseTabTip" xml:space="preserve"><value>Chiudi scheda (Ctrl+W)</value></data>
+  <data name="ColumnLocation" xml:space="preserve"><value>Percorso</value></data>
+  <data name="ColumnModified" xml:space="preserve"><value>Ultima modifica</value></data>
+  <data name="ColumnName" xml:space="preserve"><value>Nome</value></data>
+  <data name="ColumnSize" xml:space="preserve"><value>Dimensione</value></data>
+  <data name="ColumnType" xml:space="preserve"><value>Tipo</value></data>
+  <data name="CopyPath" xml:space="preserve"><value>Copia percorso</value></data>
+  <data name="CopyTip" xml:space="preserve"><value>Copia (Ctrl+C)</value></data>
+  <data name="CutTip" xml:space="preserve"><value>Taglia (Ctrl+X)</value></data>
+  <data name="DefaultFolderName" xml:space="preserve"><value>Cartella</value></data>
+  <data name="Delete" xml:space="preserve"><value>Elimina</value></data>
+  <data name="DeleteFolder" xml:space="preserve"><value>Elimina cartella</value></data>
+  <data name="DeleteFolderConfirm" xml:space="preserve"><value>Eliminare la cartella "{0}" e i {1} segnalibri che contiene?</value></data>
+  <data name="DeletePermanently" xml:space="preserve"><value>Elimina definitivamente</value></data>
+  <data name="DeleteSessionConfirm" xml:space="preserve"><value>Eliminare la sessione "{0}"?</value></data>
+  <data name="DeleteSessionTitle" xml:space="preserve"><value>Elimina sessione</value></data>
+  <data name="DeleteTip" xml:space="preserve"><value>Elimina (Canc)</value></data>
+  <data name="DevicesAndDrives" xml:space="preserve"><value>Dispositivi e unità</value></data>
+  <data name="DragToMovePanel" xml:space="preserve"><value>Trascina per spostare il pannello</value></data>
+  <data name="DriveNotReady" xml:space="preserve"><value>Unità non pronta</value></data>
+  <data name="DropPanelHere" xml:space="preserve"><value>Rilascia qui il pannello</value></data>
+  <data name="DropStackClearTip" xml:space="preserve"><value>Svuota il Drop Stack</value></data>
+  <data name="DropStackCopyTip" xml:space="preserve"><value>Copia tutto nella cartella corrente</value></data>
+  <data name="DropStackEmpty" xml:space="preserve"><value>Trascina qui i file da raccogliere, poi copiali o spostali tutti insieme.</value></data>
+  <data name="DropStackMoveTip" xml:space="preserve"><value>Sposta tutto nella cartella corrente</value></data>
+  <data name="DropStackRemove" xml:space="preserve"><value>Rimuovi dal Drop Stack</value></data>
+  <data name="EditWithEditor" xml:space="preserve"><value>Modifica con l'editor</value></data>
+  <data name="EditorStatus" xml:space="preserve"><value>{0} · {1} righe</value></data>
+  <data name="EditorTitle" xml:space="preserve"><value>{0} - Editor di Navigator</value></data>
+  <data name="EmptyFolder" xml:space="preserve"><value>Questa cartella è vuota.</value></data>
+  <data name="FileTooLargeForEditor" xml:space="preserve"><value>Il file è troppo grande per l'editor integrato (oltre 20 MB).</value></data>
+  <data name="FileTypeFallback" xml:space="preserve"><value>File</value></data>
+  <data name="FileTypes" xml:space="preserve"><value>Tipi di file</value></data>
+  <data name="FilterPlaceholder" xml:space="preserve"><value>Filtra per nome, es. *.jpg; foto</value></data>
+  <data name="FilteredFrom" xml:space="preserve"><value> (filtrati da {0:N0})</value></data>
+  <data name="FolderNamePrompt" xml:space="preserve"><value>Nome della cartella:</value></data>
+  <data name="ForwardTip" xml:space="preserve"><value>Avanti (Alt+Freccia destra)</value></data>
+  <data name="FreeOfTotal" xml:space="preserve"><value>{0} disponibili su {1}</value></data>
+  <data name="FreeSpace" xml:space="preserve"><value>{0}: {1} disponibili su {2}</value></data>
+  <data name="GestureBookmark" xml:space="preserve"><value>Ctrl+D</value></data>
+  <data name="GestureCopyPath" xml:space="preserve"><value>Ctrl+Maiusc+C</value></data>
+  <data name="GestureDeletePermanently" xml:space="preserve"><value>Maiusc+Canc</value></data>
+  <data name="GestureNewFolder" xml:space="preserve"><value>Ctrl+Maiusc+N</value></data>
+  <data name="GesturePaste" xml:space="preserve"><value>Ctrl+V</value></data>
+  <data name="GestureProperties" xml:space="preserve"><value>Alt+Invio</value></data>
+  <data name="GestureSelectAll" xml:space="preserve"><value>Ctrl+A</value></data>
+  <data name="GestureViewDetails" xml:space="preserve"><value>Ctrl+Maiusc+6</value></data>
+  <data name="GestureViewLarge" xml:space="preserve"><value>Ctrl+Maiusc+3</value></data>
+  <data name="GestureViewMedium" xml:space="preserve"><value>Ctrl+Maiusc+4</value></data>
+  <data name="HiddenItems" xml:space="preserve"><value>Elementi nascosti</value></data>
+  <data name="HidePanel" xml:space="preserve"><value>Nascondi pannello</value></data>
+  <data name="InvalidName" xml:space="preserve"><value>Il nome "{0}" contiene caratteri non validi.</value></data>
+  <data name="ItemsMany" xml:space="preserve"><value>{0:N0} elementi</value></data>
+  <data name="ItemsOne" xml:space="preserve"><value>1 elemento</value></data>
+  <data name="KnownDesktop" xml:space="preserve"><value>Desktop</value></data>
+  <data name="KnownDocuments" xml:space="preserve"><value>Documenti</value></data>
+  <data name="KnownDownloads" xml:space="preserve"><value>Download</value></data>
+  <data name="KnownMusic" xml:space="preserve"><value>Musica</value></data>
+  <data name="KnownPictures" xml:space="preserve"><value>Immagini</value></data>
+  <data name="KnownVideos" xml:space="preserve"><value>Video</value></data>
+  <data name="Language" xml:space="preserve"><value>Lingua</value></data>
+  <data name="LanguageSystem" xml:space="preserve"><value>Lingua di Windows</value></data>
+  <data name="LastModified" xml:space="preserve"><value>Ultima modifica: {0}</value></data>
+  <data name="LocalDisk" xml:space="preserve"><value>Disco locale</value></data>
+  <data name="Maximize" xml:space="preserve"><value>Ingrandisci</value></data>
+  <data name="Minimize" xml:space="preserve"><value>Riduci a icona</value></data>
+  <data name="MoreOptions" xml:space="preserve"><value>Altre opzioni</value></data>
+  <data name="MoveDown" xml:space="preserve"><value>Sposta giù</value></data>
+  <data name="MoveEarlier" xml:space="preserve"><value>Sposta più a sinistra</value></data>
+  <data name="MoveLater" xml:space="preserve"><value>Sposta più a destra</value></data>
+  <data name="MoveLeft" xml:space="preserve"><value>Sposta nel lato sinistro</value></data>
+  <data name="MoveRight" xml:space="preserve"><value>Sposta nel lato destro</value></data>
+  <data name="MoveToBottom" xml:space="preserve"><value>Sposta sotto la lista dei file</value></data>
+  <data name="MoveUp" xml:space="preserve"><value>Sposta su</value></data>
+  <data name="NetworkDrive" xml:space="preserve"><value>Unità di rete</value></data>
+  <data name="NetworkLocations" xml:space="preserve"><value>Percorsi di rete</value></data>
+  <data name="NewBookmarkFolderTip" xml:space="preserve"><value>Nuova cartella dei segnalibri</value></data>
+  <data name="NewBookmarkFolderTitle" xml:space="preserve"><value>Nuova cartella dei segnalibri</value></data>
+  <data name="NewFolder" xml:space="preserve"><value>Nuova cartella</value></data>
+  <data name="NewFolderTip" xml:space="preserve"><value>Nuova cartella (Ctrl+Maiusc+N)</value></data>
+  <data name="NewFolderTitle" xml:space="preserve"><value>Nuova cartella</value></data>
+  <data name="NewNamePrompt" xml:space="preserve"><value>Nuovo nome:</value></data>
+  <data name="NewTab" xml:space="preserve"><value>Nuova scheda</value></data>
+  <data name="NewTabTip" xml:space="preserve"><value>Nuova scheda (Ctrl+T)</value></data>
+  <data name="NoBookmarks" xml:space="preserve"><value>Nessun segnalibro. Trascina qui file e cartelle, premi Ctrl+D o crea una cartella per organizzarli.</value></data>
+  <data name="NoExtension" xml:space="preserve"><value>(nessuna)</value></data>
+  <data name="NoFilterMatch" xml:space="preserve"><value>Nessun elemento corrisponde al filtro.</value></data>
+  <data name="NoPreview" xml:space="preserve"><value>Nessuna anteprima disponibile per questo elemento.</value></data>
+  <data name="NoSearchMatch" xml:space="preserve"><value>Nessun elemento corrisponde alla ricerca.</value></data>
+  <data name="NoSessions" xml:space="preserve"><value>Salva le schede aperte per ritrovarle in un clic.</value></data>
+  <data name="None" xml:space="preserve"><value>Nessuno</value></data>
+  <data name="Ok" xml:space="preserve"><value>OK</value></data>
+  <data name="Open" xml:space="preserve"><value>Apri</value></data>
+  <data name="OpenAllBookmarksTip" xml:space="preserve"><value>Apri tutti i segnalibri a cartelle in schede</value></data>
+  <data name="OpenAllInTabs" xml:space="preserve"><value>Apri tutti in schede</value></data>
+  <data name="OpenDataFolder" xml:space="preserve"><value>Apri la cartella dei dati di Navigator</value></data>
+  <data name="OpenFileLocation" xml:space="preserve"><value>Apri percorso file</value></data>
+  <data name="OpenInNewTab" xml:space="preserve"><value>Apri in una nuova scheda</value></data>
+  <data name="OpenLocation" xml:space="preserve"><value>Apri percorso</value></data>
+  <data name="OpticalDrive" xml:space="preserve"><value>Unità DVD</value></data>
+  <data name="PanelBookmarks" xml:space="preserve"><value>Segnalibri</value></data>
+  <data name="PanelDropStack" xml:space="preserve"><value>Drop Stack</value></data>
+  <data name="PanelFilters" xml:space="preserve"><value>Filtri</value></data>
+  <data name="PanelFolders" xml:space="preserve"><value>Cartelle</value></data>
+  <data name="PanelOptions" xml:space="preserve"><value>Opzioni del pannello</value></data>
+  <data name="PanelQuickView" xml:space="preserve"><value>Quick View</value></data>
+  <data name="PanelSessions" xml:space="preserve"><value>Sessioni</value></data>
+  <data name="Panels" xml:space="preserve"><value>Pannelli</value></data>
+  <data name="Paste" xml:space="preserve"><value>Incolla</value></data>
+  <data name="PasteTip" xml:space="preserve"><value>Incolla (Ctrl+V)</value></data>
+  <data name="PathNotFound" xml:space="preserve"><value>Impossibile trovare "{0}". Controlla il percorso e riprova.</value></data>
+  <data name="Pause" xml:space="preserve"><value>Pausa</value></data>
+  <data name="Play" xml:space="preserve"><value>Riproduci</value></data>
+  <data name="Portable" xml:space="preserve"><value>Portable</value></data>
+  <data name="PortableSuffix" xml:space="preserve"><value> (portable)</value></data>
+  <data name="Properties" xml:space="preserve"><value>Proprietà</value></data>
+  <data name="QuickAccess" xml:space="preserve"><value>Accesso rapido</value></data>
+  <data name="Refresh" xml:space="preserve"><value>Aggiorna</value></data>
+  <data name="RefreshTip" xml:space="preserve"><value>Aggiorna (F5)</value></data>
+  <data name="RefreshTree" xml:space="preserve"><value>Aggiorna albero cartelle</value></data>
+  <data name="RefreshTreeTip" xml:space="preserve"><value>Aggiorna l'albero</value></data>
+  <data name="RemovableDrive" xml:space="preserve"><value>Unità USB</value></data>
+  <data name="Remove" xml:space="preserve"><value>Rimuovi</value></data>
+  <data name="Rename" xml:space="preserve"><value>Rinomina</value></data>
+  <data name="RenameBookmarkTitle" xml:space="preserve"><value>Rinomina segnalibro</value></data>
+  <data name="RenameFolderTitle" xml:space="preserve"><value>Rinomina cartella</value></data>
+  <data name="RenameTip" xml:space="preserve"><value>Rinomina (F2)</value></data>
+  <data name="RenameTitle" xml:space="preserve"><value>Rinomina</value></data>
+  <data name="ReopenTabs" xml:space="preserve"><value>Riapri le schede all'avvio</value></data>
+  <data name="ResetPanels" xml:space="preserve"><value>Ripristina la disposizione dei pannelli</value></data>
+  <data name="RestartForLanguage" xml:space="preserve"><value>La nuova lingua verrà usata dal prossimo avvio. Riavviare Navigator adesso?</value></data>
+  <data name="Restore" xml:space="preserve"><value>Ripristina</value></data>
+  <data name="RestoreSession" xml:space="preserve"><value>Ripristina</value></data>
+  <data name="Save" xml:space="preserve"><value>Salva</value></data>
+  <data name="SaveChangesConfirm" xml:space="preserve"><value>Salvare le modifiche a {0}?</value></data>
+  <data name="SaveFailed" xml:space="preserve"><value>Impossibile salvare il file:
+
+{0}</value></data>
+  <data name="SaveSession" xml:space="preserve"><value>Salva sessione</value></data>
+  <data name="SaveSessionTip" xml:space="preserve"><value>Salva le schede aperte come sessione (Ctrl+Maiusc+S)</value></data>
+  <data name="SaveTip" xml:space="preserve"><value>Salva (Ctrl+S)</value></data>
+  <data name="SearchIn" xml:space="preserve"><value>Cerca in {0}</value></data>
+  <data name="SearchLimit" xml:space="preserve"><value>Mostrati i primi {0:N0} risultati: affina la ricerca.</value></data>
+  <data name="SearchTip" xml:space="preserve"><value>Cerca (Invio)</value></data>
+  <data name="SearchTitle" xml:space="preserve"><value>Ricerca: {0}</value></data>
+  <data name="Searching" xml:space="preserve"><value>Ricerca in corso...</value></data>
+  <data name="SearchingCount" xml:space="preserve"><value>Ricerca in corso... {0} risultati</value></data>
+  <data name="SelectAll" xml:space="preserve"><value>Seleziona tutto</value></data>
+  <data name="SelectFileForPreview" xml:space="preserve"><value>Seleziona un file per vederne l'anteprima.</value></data>
+  <data name="SelectedMany" xml:space="preserve"><value>    {0:N0} elementi selezionati</value></data>
+  <data name="SelectedOne" xml:space="preserve"><value>    1 elemento selezionato</value></data>
+  <data name="SessionDefaultName" xml:space="preserve"><value>Sessione {0}</value></data>
+  <data name="SessionFoldersMissing" xml:space="preserve"><value>Nessuna delle cartelle di questa sessione esiste ancora.</value></data>
+  <data name="SessionNamePrompt" xml:space="preserve"><value>Nome della sessione:</value></data>
+  <data name="SessionReplaceConfirm" xml:space="preserve"><value>Esiste già una sessione "{0}". Vuoi sostituirla?</value></data>
+  <data name="SessionTabs" xml:space="preserve"><value>{0} schede</value></data>
+  <data name="SizeBytes" xml:space="preserve"><value>{0} byte</value></data>
+  <data name="StartupFailed" xml:space="preserve"><value>Navigator non si è avviato:
+
+{0}</value></data>
+  <data name="Stop" xml:space="preserve"><value>Interrompi</value></data>
+  <data name="StrictFilter" xml:space="preserve"><value>Filtro rigido (il nome intero deve corrispondere)</value></data>
+  <data name="SyncFolderTree" xml:space="preserve"><value>Mostra nell'albero la cartella aperta</value></data>
+  <data name="ThisPC" xml:space="preserve"><value>Questo PC</value></data>
+  <data name="UnexpectedError" xml:space="preserve"><value>Si è verificato un errore:
+
+{0}
+
+Dettagli in {1}</value></data>
+  <data name="UpTip" xml:space="preserve"><value>Su (Alt+Freccia su)</value></data>
+  <data name="View" xml:space="preserve"><value>Visualizza</value></data>
+  <data name="ViewDetails" xml:space="preserve"><value>Dettagli</value></data>
+  <data name="ViewLargeIcons" xml:space="preserve"><value>Icone grandi</value></data>
+  <data name="ViewMediumIcons" xml:space="preserve"><value>Icone medie</value></data>
+  <data name="ViewOptionsTip" xml:space="preserve"><value>Opzioni di visualizzazione</value></data>
+  <data name="WordWrap" xml:space="preserve"><value>A capo</value></data>
+  <data name="WordWrapTip" xml:space="preserve"><value>A capo automatico</value></data>
+</root>
