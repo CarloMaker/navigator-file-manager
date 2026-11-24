@@ -169,6 +169,9 @@ public static class Strings
     /// <summary>Questa cartella è vuota.</summary>
     public static string EmptyFolder => Get(nameof(EmptyFolder));
 
+    /// <summary>{0} è stato modificato o eliminato da un altro programma dopo l'apertura.  Salvare comunque la tua versione?</summary>
+    public static string FileChangedOnDisk => Get(nameof(FileChangedOnDisk));
+
     /// <summary>Il file è troppo grande per l'editor integrato (oltre 20 MB).</summary>
     public static string FileTooLargeForEditor => Get(nameof(FileTooLargeForEditor));
 
@@ -225,6 +228,24 @@ public static class Strings
 
     /// <summary>Ctrl+Maiusc+4</summary>
     public static string GestureViewMedium => Get(nameof(GestureViewMedium));
+
+    /// <summary>Git: aggiunto</summary>
+    public static string GitAdded => Get(nameof(GitAdded));
+
+    /// <summary>Git: in conflitto</summary>
+    public static string GitConflicted => Get(nameof(GitConflicted));
+
+    /// <summary>Git: ignorato</summary>
+    public static string GitIgnored => Get(nameof(GitIgnored));
+
+    /// <summary>Git: modificato</summary>
+    public static string GitModified => Get(nameof(GitModified));
+
+    /// <summary>Git: aggiornato</summary>
+    public static string GitNormal => Get(nameof(GitNormal));
+
+    /// <summary>Git: non versionato</summary>
+    public static string GitUntracked => Get(nameof(GitUntracked));
 
     /// <summary>Elementi nascosti</summary>
     public static string HiddenItems => Get(nameof(HiddenItems));
@@ -370,6 +391,9 @@ public static class Strings
     /// <summary>Apri percorso file</summary>
     public static string OpenFileLocation => Get(nameof(OpenFileLocation));
 
+    /// <summary>Apri nell'editor (F4)</summary>
+    public static string OpenInEditorTip => Get(nameof(OpenInEditorTip));
+
     /// <summary>Apri in una nuova scheda</summary>
     public static string OpenInNewTab => Get(nameof(OpenInNewTab));
 
@@ -430,6 +454,15 @@ public static class Strings
     /// <summary>Accesso rapido</summary>
     public static string QuickAccess => Get(nameof(QuickAccess));
 
+    /// <summary>modificato</summary>
+    public static string QuickViewModified => Get(nameof(QuickViewModified));
+
+    /// <summary>anteprima parziale, file troppo grande da modificare qui</summary>
+    public static string QuickViewPartial => Get(nameof(QuickViewPartial));
+
+    /// <summary>sola lettura</summary>
+    public static string QuickViewReadOnly => Get(nameof(QuickViewReadOnly));
+
     /// <summary>Aggiorna</summary>
     public static string Refresh => Get(nameof(Refresh));
 
@@ -478,11 +511,17 @@ public static class Strings
     /// <summary>Ripristina</summary>
     public static string RestoreSession => Get(nameof(RestoreSession));
 
+    /// <summary>Annulla le modifiche e ricarica il file</summary>
+    public static string RevertChangesTip => Get(nameof(RevertChangesTip));
+
     /// <summary>Salva</summary>
     public static string Save => Get(nameof(Save));
 
     /// <summary>Salvare le modifiche a {0}?</summary>
     public static string SaveChangesConfirm => Get(nameof(SaveChangesConfirm));
+
+    /// <summary>Il file {0} è stato modificato nella Quick View.  Salvare le modifiche?</summary>
+    public static string SaveChangesQuickView => Get(nameof(SaveChangesQuickView));
 
     /// <summary>Impossibile salvare il file:  {0}</summary>
     public static string SaveFailed => Get(nameof(SaveFailed));
@@ -540,6 +579,12 @@ public static class Strings
 
     /// <summary>{0} schede</summary>
     public static string SessionTabs => Get(nameof(SessionTabs));
+
+    /// <summary>Calcola la dimensione delle cartelle</summary>
+    public static string ShowFolderSizes => Get(nameof(ShowFolderSizes));
+
+    /// <summary>Mostra lo stato Git sulle icone</summary>
+    public static string ShowGitStatus => Get(nameof(ShowGitStatus));
 
     /// <summary>{0} byte</summary>
     public static string SizeBytes => Get(nameof(SizeBytes));

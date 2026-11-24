@@ -1,6 +1,8 @@
 using System.Text;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Navigator.Core.Localization;
+using Navigator.Core.Utilities;
 
 namespace Navigator.Presentation.ViewModels;
 
@@ -13,10 +15,31 @@ public enum QuickViewKind
     Info,
 }
 
-/// <summary>Anteprima del file selezionato: immagini, testo, audio/video, altrimenti solo le informazioni.</summary>
+/// <summary>Collegamento con l'editor della Quick View: il testo modificato e le domande all'utente.</summary>
+public interface IQuickViewEditorHost
+{
+    /// <summary>Testo attualmente nell'editor.</summary>
+    string GetText();
+
+    /// <summary>Chiede se salvare le modifiche prima di passare a un altro file: true = salva, false = scarta.</summary>
+    bool AskSaveChanges(string fileName);
+
+    /// <summary>Il file è cambiato su disco (o non c'è più) dopo l'apertura: true = salva comunque.</summary>
+    bool ConfirmOverwrite(string fileName);
+
+    void ShowError(string message);
+}
+
+/// <summary>
+/// Anteprima del file selezionato: immagini, testo, audio/video, altrimenti solo le informazioni.
+/// I file di testo si possono modificare al volo e salvare (Ctrl+S) mantenendo la codifica originale.
+/// </summary>
 public sealed partial class QuickViewViewModel : ObservableObject
 {
-    private const int MaxTextChars = 64 * 1024;
+    /// <summary>Oltre questa dimensione il testo si vede solo in parte e non si modifica nella Quick View.</summary>
+    public const long MaxEditableBytes = 4L * 1024 * 1024;
+
+    private const long MaxPreviewBytes = 64 * 1024;
     private const long MaxSniffSize = 2 * 1024 * 1024;
 
     private static readonly HashSet<string> ImageExtensions = new(StringComparer.OrdinalIgnoreCase)
@@ -39,6 +62,10 @@ public sealed partial class QuickViewViewModel : ObservableObject
     };
 
     private CancellationTokenSource? _cts;
+    private Encoding? _encoding;
+    private DateTime _loadedWriteTimeUtc;
+    private bool _isPartial;
+    private bool _isReadOnlyFile;
 
     [ObservableProperty]
     private QuickViewKind _kind;
@@ -46,6 +73,7 @@ public sealed partial class QuickViewViewModel : ObservableObject
     [ObservableProperty]
     private string? _filePath;
 
+    /// <summary>Testo letto dal disco (o salvato per ultimo). Il testo modificato sta nell'editor.</summary>
     [ObservableProperty]
     private string? _text;
 
@@ -55,14 +83,53 @@ public sealed partial class QuickViewViewModel : ObservableObject
     [ObservableProperty]
     private string _details = string.Empty;
 
+    /// <summary>True se il testo si può modificare e salvare (file completo, non di sola lettura).</summary>
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(RevertCommand))]
+    private bool _isEditable;
+
+    /// <summary>Ci sono modifiche non salvate nell'editor.</summary>
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(SaveChangesCommand))]
+    [NotifyCanExecuteChangedFor(nameof(RevertCommand))]
+    private bool _isDirty;
+
+    /// <summary>Codifica, righe e stato (modificato, sola lettura, anteprima parziale).</summary>
+    [ObservableProperty]
+    private string _textStatus = string.Empty;
+
+    /// <summary>Il testo nell'editor va sostituito con <see cref="Text"/> (nuovo file, ricarica o annulla modifiche).</summary>
+    public event EventHandler? DocumentLoaded;
+
+    public IQuickViewEditorHost? Host { get; set; }
+
     public static bool IsTextExtension(string extension) => TextExtensions.Contains(extension);
 
     public async Task ShowAsync(FileItemViewModel? item)
     {
+        var newPath = item?.FullPath;
+        var samePath = newPath is not null && FilePath is not null && PathHelper.AreSame(newPath, FilePath);
+
+        if (IsDirty)
+        {
+            if (samePath && item is { IsDirectory: false })
+            {
+                // La stessa voce ricaricata (es. aggiornamento della cartella): si tengono le modifiche.
+                SetHeader(item);
+                return;
+            }
+
+            ResolvePendingChanges();
+        }
+
         _cts?.Cancel();
         var cts = _cts = new CancellationTokenSource();
 
-        Text = null;
+        if (!samePath || Kind != QuickViewKind.Text)
+        {
+            ClearText();
+        }
+
         if (item is null)
         {
             Kind = QuickViewKind.None;
@@ -72,14 +139,12 @@ public sealed partial class QuickViewViewModel : ObservableObject
             return;
         }
 
-        Title = item.Name;
-        Details = item.IsDirectory
-            ? item.TypeName + "\n" + Strings.Format(Strings.LastModified, item.ModifiedText)
-            : $"{item.TypeName} · {item.SizeText}\n" + Strings.Format(Strings.LastModified, item.ModifiedText);
+        SetHeader(item);
 
         // Cartelle e file solo online (OneDrive): nessuna lettura del contenuto.
         if (item.IsDirectory || item.Entry.IsCloudOnly)
         {
+            ClearText();
             FilePath = item.FullPath;
             Kind = QuickViewKind.Info;
             return;
@@ -90,23 +155,24 @@ public sealed partial class QuickViewViewModel : ObservableObject
 
         if (ImageExtensions.Contains(extension))
         {
+            ClearText();
             Kind = QuickViewKind.Image;
             return;
         }
 
         if (MediaExtensions.Contains(extension))
         {
+            ClearText();
             Kind = QuickViewKind.Media;
             return;
         }
 
         if (TextExtensions.Contains(extension) || item.Size <= MaxSniffSize)
         {
-            var path = item.FullPath;
-            string? text;
+            LoadedText? loaded;
             try
             {
-                text = await Task.Run(() => ReadText(path, requireText: !TextExtensions.Contains(extension)), cts.Token);
+                loaded = await Task.Run(() => LoadText(item.FullPath, requireText: !TextExtensions.Contains(extension)), cts.Token);
             }
             catch (OperationCanceledException)
             {
@@ -118,42 +184,214 @@ public sealed partial class QuickViewViewModel : ObservableObject
                 return;
             }
 
-            if (text is not null)
+            if (IsDirty)
             {
-                Text = text;
+                return; // l'utente ha iniziato a scrivere mentre il file si ricaricava: si tengono le modifiche
+            }
+
+            if (loaded is not null)
+            {
+                ApplyLoaded(loaded);
                 Kind = QuickViewKind.Text;
                 return;
             }
         }
 
+        ClearText();
         Kind = QuickViewKind.Info;
     }
 
-    /// <summary>Legge l'inizio del file; null se sembra binario o non leggibile.</summary>
-    private static string? ReadText(string path, bool requireText)
+    [RelayCommand(CanExecute = nameof(IsDirty))]
+    private void SaveChanges() => Save();
+
+    /// <summary>Salva il testo dell'editor nel file, con la codifica originale.</summary>
+    public bool Save()
+    {
+        if (!IsEditable || FilePath is not { } path || _encoding is null || Host is null)
+        {
+            return false;
+        }
+
+        var name = Path.GetFileName(path);
+        if (HasChangedOnDisk(path) && !Host.ConfirmOverwrite(name))
+        {
+            return false;
+        }
+
+        var text = Host.GetText();
+        try
+        {
+            TextFileCodec.Write(path, text, _encoding);
+            _loadedWriteTimeUtc = File.GetLastWriteTimeUtc(path);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            Host.ShowError(Strings.Format(Strings.SaveFailed, ex.Message));
+            return false;
+        }
+
+        Text = text;
+        IsDirty = false;
+        UpdateStatus();
+        return true;
+    }
+
+    /// <summary>Annulla le modifiche e ricarica il file dal disco.</summary>
+    [RelayCommand(CanExecute = nameof(IsDirty))]
+    public void Revert()
+    {
+        if (FilePath is not { } path)
+        {
+            return;
+        }
+
+        LoadedText? loaded;
+        try
+        {
+            loaded = LoadText(path, requireText: false);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            loaded = null;
+        }
+
+        IsDirty = false;
+        if (loaded is null)
+        {
+            ClearText();
+            Kind = QuickViewKind.Info;
+            return;
+        }
+
+        ApplyLoaded(loaded, force: true);
+    }
+
+    /// <summary>Chiamato dalla vista quando il testo nell'editor cambia (o torna all'originale con Annulla).</summary>
+    public void SetModified(bool modified)
+    {
+        if (Kind != QuickViewKind.Text || !IsEditable)
+        {
+            return;
+        }
+
+        IsDirty = modified;
+        UpdateStatus();
+    }
+
+    /// <summary>Prima di chiudere: chiede se salvare. False se il salvataggio non è riuscito.</summary>
+    public bool ResolvePendingChanges()
+    {
+        if (!IsDirty || FilePath is not { } path)
+        {
+            return true;
+        }
+
+        var ok = Host?.AskSaveChanges(Path.GetFileName(path)) != true || Save();
+        IsDirty = false;
+        return ok;
+    }
+
+    private void SetHeader(FileItemViewModel item)
+    {
+        Title = item.Name;
+        Details = item.IsDirectory
+            ? item.TypeName + "\n" + Strings.Format(Strings.LastModified, item.ModifiedText)
+            : $"{item.TypeName} · {item.SizeText}\n" + Strings.Format(Strings.LastModified, item.ModifiedText);
+    }
+
+    private void ClearText()
+    {
+        Text = null;
+        _encoding = null;
+        IsEditable = false;
+        IsDirty = false;
+        TextStatus = string.Empty;
+    }
+
+    private void ApplyLoaded(LoadedText loaded, bool force = false)
+    {
+        var changed = force || !string.Equals(Text, loaded.Content.Text, StringComparison.Ordinal) || _encoding is null;
+        _encoding = loaded.Content.Encoding;
+        _loadedWriteTimeUtc = loaded.WriteTimeUtc;
+        _isPartial = !loaded.Content.IsComplete;
+        _isReadOnlyFile = loaded.IsReadOnlyFile;
+        Text = loaded.Content.IsComplete ? loaded.Content.Text : loaded.Content.Text + "\n\n…";
+        IsEditable = loaded.Content.IsComplete && !loaded.IsReadOnlyFile;
+        IsDirty = false;
+        UpdateStatus();
+        if (changed)
+        {
+            DocumentLoaded?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    private void UpdateStatus()
+    {
+        if (Text is null || _encoding is null)
+        {
+            TextStatus = string.Empty;
+            return;
+        }
+
+        var status = Strings.Format(Strings.EditorStatus, TextFileCodec.Describe(_encoding), CountLines(Text));
+        if (_isPartial)
+        {
+            status += " · " + Strings.QuickViewPartial;
+        }
+        else if (_isReadOnlyFile)
+        {
+            status += " · " + Strings.QuickViewReadOnly;
+        }
+        else if (IsDirty)
+        {
+            status += " · " + Strings.QuickViewModified;
+        }
+
+        TextStatus = status;
+    }
+
+    private bool HasChangedOnDisk(string path)
     {
         try
         {
-            using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
-            var head = new byte[Math.Min(8192, stream.Length)];
-            var read = stream.Read(head, 0, head.Length);
+            return !File.Exists(path) || File.GetLastWriteTimeUtc(path) != _loadedWriteTimeUtc;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            return false;
+        }
+    }
 
-            var hasBom = read >= 2 && ((head[0] == 0xFF && head[1] == 0xFE) || (head[0] == 0xFE && head[1] == 0xFF));
-            if (requireText && !hasBom && Array.IndexOf(head, (byte)0, 0, read) >= 0)
+    private static int CountLines(string text)
+    {
+        var lines = 1;
+        foreach (var c in text)
+        {
+            if (c == '\n')
             {
-                return null; // byte nulli: file binario
+                lines++;
             }
+        }
 
-            stream.Position = 0;
-            using var reader = new StreamReader(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true);
-            var buffer = new char[MaxTextChars];
-            var chars = reader.ReadBlock(buffer, 0, buffer.Length);
-            var text = new string(buffer, 0, chars);
-            return reader.EndOfStream ? text : text + "\n\n…";
+        return lines;
+    }
+
+    /// <summary>Legge il file intero se è abbastanza piccolo, altrimenti solo l'inizio; null se sembra binario o non leggibile.</summary>
+    private static LoadedText? LoadText(string path, bool requireText)
+    {
+        try
+        {
+            var info = new FileInfo(path);
+            var writeTime = info.LastWriteTimeUtc;
+            var readOnly = info.IsReadOnly;
+            var content = TextFileCodec.Read(path, info.Length <= MaxEditableBytes ? MaxEditableBytes : MaxPreviewBytes, requireText);
+            return content is null ? null : new LoadedText(content, writeTime, readOnly);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
             return null;
         }
     }
+
+    private sealed record LoadedText(TextFileContent Content, DateTime WriteTimeUtc, bool IsReadOnlyFile);
 }

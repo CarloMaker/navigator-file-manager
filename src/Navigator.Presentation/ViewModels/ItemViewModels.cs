@@ -9,7 +9,7 @@ using Navigator.Core.Localization;
 namespace Navigator.Presentation.ViewModels;
 
 /// <summary>Una riga della lista file.</summary>
-public sealed class FileItemViewModel
+public sealed partial class FileItemViewModel : ObservableObject
 {
     public FileItemViewModel(FileEntry entry, string typeName)
     {
@@ -33,15 +33,49 @@ public sealed class FileItemViewModel
 
     public string TypeName { get; }
 
-    /// <summary>Come in Esplora file: dimensione in KB arrotondata per eccesso.</summary>
-    public string SizeText => IsDirectory
-        ? string.Empty
-        : string.Create(CultureInfo.CurrentCulture, $"{Math.Ceiling(Size / 1024.0):N0} KB");
+    /// <summary>Stato Git (badge sull'icona); None fuori da un repository.</summary>
+    [ObservableProperty]
+    private GitItemStatus _gitStatus;
+
+    /// <summary>Dimensione di una cartella calcolata in background (parziale mentre <see cref="IsSizePending"/>).</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SizeText))]
+    private long? _folderSize;
+
+    /// <summary>Calcolo della dimensione della cartella in attesa o in corso.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SizeText))]
+    private bool _isSizePending;
+
+    /// <summary>Dimensione per l'ordinamento: le cartelle non ancora calcolate valgono -1.</summary>
+    public long SortSize => IsDirectory ? FolderSize ?? -1 : Size;
+
+    /// <summary>Come in Esplora file: dimensione in KB arrotondata per eccesso. Per le cartelle il totale calcolato.</summary>
+    public string SizeText
+    {
+        get
+        {
+            if (!IsDirectory)
+            {
+                return FormatKb(Size);
+            }
+
+            if (FolderSize is { } size)
+            {
+                return IsSizePending ? FormatKb(size) + "…" : FormatKb(size);
+            }
+
+            return IsSizePending ? "…" : string.Empty;
+        }
+    }
 
     public string ModifiedText => Modified.ToString("g", CultureInfo.CurrentCulture);
 
     /// <summary>Cartella che contiene l'elemento (utile nei risultati di ricerca).</summary>
     public string Location => PathHelper.GetParent(FullPath) ?? string.Empty;
+
+    private static string FormatKb(long bytes) =>
+        string.Create(CultureInfo.CurrentCulture, $"{Math.Ceiling(bytes / 1024.0):N0} KB");
 }
 
 /// <summary>Una casella del pannello filtri per estensione.</summary>

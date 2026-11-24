@@ -31,6 +31,8 @@ public partial class App : Application
         services.AddSingleton<ISettingsStore, JsonSettingsStore>();
         services.AddSingleton<IFileSystemService, FileSystemService>();
         services.AddSingleton<IFolderWatcher, FolderWatcher>();
+        services.AddSingleton<IGitStatusService, GitStatusService>();
+        services.AddSingleton<IFolderSizeService, FolderSizeService>();
         services.AddSingleton<IKnownFolders, KnownFolders>();
         services.AddSingleton<IShellService, ShellService>();
         services.AddSingleton<IFileOperations, ShellFileOperations>();

@@ -46,7 +46,8 @@ Settings, bookmarks and sessions are then stored in `Data\` instead of `%AppData
 - **Bookmarks** to folders and files, organised in **virtual folders**, with drag and drop; open a whole folder of bookmarks in tabs.
 - **Sessions**: save and restore sets of tabs; the last tabs reopen at startup.
 - **Filters**: text, wildcards and per-extension check boxes.
-- **Quick View**: preview images, text, audio and video.
+- **Quick View**: preview images, text, audio and video; edit text files in place (Ctrl+S to save).
+- **Git status badges** on icons (needs Git for Windows) and **folder sizes** calculated in the background.
 - **Search** in the current folder and its subfolders.
 - **Drop Stack**: collect files from several folders, then copy or move them all at once.
 - **Text editor** with syntax highlighting (F4).

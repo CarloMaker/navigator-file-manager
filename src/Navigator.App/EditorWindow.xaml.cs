@@ -4,6 +4,7 @@ using System.Text;
 using System.Windows;
 using ICSharpCode.AvalonEdit.Highlighting;
 using Navigator.Core.Localization;
+using Navigator.Core.Utilities;
 
 namespace Navigator.App;
 
@@ -25,16 +26,14 @@ public partial class EditorWindow : Window
 
     private void Load()
     {
-        using (var reader = new StreamReader(_path, _encoding, detectEncodingFromByteOrderMarks: true))
-        {
-            Editor.Text = reader.ReadToEnd();
-            _encoding = reader.CurrentEncoding;
-        }
+        var content = TextFileCodec.Read(_path, long.MaxValue, requireText: false)!;
+        Editor.Text = content.Text;
+        _encoding = content.Encoding;
 
         Editor.SyntaxHighlighting = HighlightingManager.Instance.GetDefinitionByExtension(Path.GetExtension(_path));
         Editor.IsModified = false;
         SetDirty(false);
-        StatusText.Text = Strings.Format(Strings.EditorStatus, _encoding.WebName.ToUpperInvariant(), Editor.Document.LineCount);
+        StatusText.Text = Strings.Format(Strings.EditorStatus, TextFileCodec.Describe(_encoding), Editor.Document.LineCount);
     }
 
     private void OnSaveExecuted(object sender, System.Windows.Input.ExecutedRoutedEventArgs e) => Save();
@@ -43,7 +42,7 @@ public partial class EditorWindow : Window
     {
         try
         {
-            File.WriteAllText(_path, Editor.Text, _encoding);
+            TextFileCodec.Write(_path, Editor.Text, _encoding);
             SetDirty(false);
             return true;
         }

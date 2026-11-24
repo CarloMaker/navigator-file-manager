@@ -36,6 +36,19 @@ public static class PathHelper
         return p.Length == 3 && p[1] == ':' && p[2] == '\\' && char.IsAsciiLetter(p[0]);
     }
 
+    /// <summary>true per la radice di un'unità ("C:\") o di una condivisione di rete ("\\server\condivisione").</summary>
+    public static bool IsVolumeRoot(string path)
+    {
+        if (IsDriveRoot(path))
+        {
+            return true;
+        }
+
+        var p = Normalize(path).TrimEnd('\\');
+        return p.StartsWith(@"\\", StringComparison.Ordinal)
+               && p[2..].Split('\\', StringSplitOptions.RemoveEmptyEntries).Length == 2;
+    }
+
     /// <summary>Dove porta il pulsante "Su": la cartella superiore; dalla radice di un'unità, "Questo PC".</summary>
     public static string? GetNavigationParent(string path) =>
         IsThisPc(path) ? null : GetParent(path) ?? (IsDriveRoot(path) ? ThisPc : null);

@@ -14,7 +14,11 @@ public sealed record TabServices(
     IFileSystemService FileSystem,
     IShellService Shell,
     IFolderWatcher Watcher,
-    IUiDispatcher Ui);
+    IUiDispatcher Ui,
+    IGitStatusService? Git = null,
+    IFolderSizeService? FolderSizes = null,
+    Func<bool>? ShowGitStatus = null,
+    Func<bool>? ShowFolderSizes = null);
 
 /// <summary>Colonne ordinabili della lista file.</summary>
 public enum SortColumn
@@ -37,6 +41,12 @@ public sealed partial class TabViewModel : ObservableObject, IDisposable
     private readonly NavigationHistory _history = new();
     private List<FileItemViewModel> _all = [];
     private CancellationTokenSource? _loadCts;
+    private CancellationTokenSource? _gitCts;
+    private FolderSizeJob? _sizeJob;
+    private Dictionary<string, FileItemViewModel> _itemsByPath = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>Dimensioni delle cartelle già calcolate (percorso → data di modifica e dimensione), riusate quando la cartella si aggiorna da sola.</summary>
+    private readonly Dictionary<string, (DateTime Modified, long? Size)> _folderSizeCache = new(StringComparer.OrdinalIgnoreCase);
     private IDisposable? _watch;
     private bool _suspendFilter;
 
@@ -175,6 +185,12 @@ public sealed partial class TabViewModel : ObservableObject, IDisposable
         IsThisPc = false;
         Drives = [];
         NetworkDrives = [];
+        if (!PathHelper.AreSame(CurrentPath, path))
+        {
+            CancelBackgroundDetails();
+            _folderSizeCache.Clear();
+        }
+
         CurrentPath = path;
         Title = PathHelper.GetDisplayName(path);
         Breadcrumbs = PathHelper.GetBreadcrumbs(path);
@@ -193,6 +209,7 @@ public sealed partial class TabViewModel : ObservableObject, IDisposable
 
         _watch?.Dispose();
         _watch = null;
+        CancelBackgroundDetails();
         IsSearchResults = false;
         SearchText = string.Empty;
         ErrorMessage = null;
@@ -284,6 +301,8 @@ public sealed partial class TabViewModel : ObservableObject, IDisposable
         }
         else if (!string.IsNullOrEmpty(CurrentPath))
         {
+            CancelBackgroundDetails(); // F5: si ricalcolano anche stato Git e dimensioni delle cartelle
+            _folderSizeCache.Clear();
             await LoadAsync(keepFilters: true);
         }
     }
@@ -355,6 +374,7 @@ public sealed partial class TabViewModel : ObservableObject, IDisposable
             if (!cts.IsCancellationRequested)
             {
                 SetEntries(entries, keepFilters);
+                StartBackgroundDetails(entries);
             }
         }
         catch (OperationCanceledException)
@@ -403,6 +423,7 @@ public sealed partial class TabViewModel : ObservableObject, IDisposable
         var includeHidden = _showHidden();
         var results = new List<FileEntry>();
 
+        CancelBackgroundDetails();
         IsLoading = true;
         IsSearchResults = true;
         ErrorMessage = null;
@@ -542,6 +563,11 @@ public sealed partial class TabViewModel : ObservableObject, IDisposable
         _all = entries
             .Select(e => new FileItemViewModel(e, _services.Shell.GetTypeName(e.FullPath, e.IsDirectory)))
             .ToList();
+        _itemsByPath = new Dictionary<string, FileItemViewModel>(StringComparer.OrdinalIgnoreCase);
+        foreach (var item in _all)
+        {
+            _itemsByPath.TryAdd(item.FullPath, item);
+        }
 
         ExtensionFilters.Clear();
         var groups = _all
@@ -601,7 +627,7 @@ public sealed partial class TabViewModel : ObservableObject, IDisposable
             SortColumn.Type => SortDescending
                 ? folders.ThenByDescending(i => i.TypeName, StringComparer.CurrentCultureIgnoreCase)
                 : folders.ThenBy(i => i.TypeName, StringComparer.CurrentCultureIgnoreCase),
-            SortColumn.Size => SortDescending ? folders.ThenByDescending(i => i.Size) : folders.ThenBy(i => i.Size),
+            SortColumn.Size => SortDescending ? folders.ThenByDescending(i => i.SortSize) : folders.ThenBy(i => i.SortSize),
             _ => SortDescending
                 ? folders.ThenByDescending(i => i.Name, NaturalStringComparer.Instance)
                 : folders.ThenBy(i => i.Name, NaturalStringComparer.Instance),
@@ -622,10 +648,10 @@ public sealed partial class TabViewModel : ObservableObject, IDisposable
         if (SelectedItems.Count > 0)
         {
             text += SelectedItems.Count == 1 ? Strings.SelectedOne : string.Format(culture, Strings.SelectedMany, SelectedItems.Count);
-            var files = SelectedItems.Where(i => !i.IsDirectory).ToList();
-            if (files.Count > 0)
+            var sized = SelectedItems.Where(i => !i.IsDirectory || (i.FolderSize is not null && !i.IsSizePending)).ToList();
+            if (sized.Count > 0)
             {
-                text += "  " + PathHelper.FormatSize(files.Sum(f => f.Size), culture);
+                text += "  " + PathHelper.FormatSize(sized.Sum(i => i.IsDirectory ? i.FolderSize!.Value : i.Size), culture);
             }
         }
 
@@ -633,8 +659,232 @@ public sealed partial class TabViewModel : ObservableObject, IDisposable
         OnPropertyChanged(nameof(IsFiltered));
     }
 
+    // ---- Stato Git e dimensione delle cartelle (in background) ------------------------------
+
+    /// <summary>Calcolo delle dimensioni delle sottocartelle di una cartella, su un thread separato a bassa priorità.</summary>
+    private sealed class FolderSizeJob(string folder)
+    {
+        public string Folder { get; } = folder;
+
+        public CancellationTokenSource Cts { get; } = new();
+
+        public object Lock { get; } = new();
+
+        public Queue<(string Path, DateTime Modified)> Queue { get; } = new();
+
+        public string? Current { get; set; }
+
+        public bool Running { get; set; }
+    }
+
+    private void CancelBackgroundDetails()
+    {
+        _gitCts?.Cancel();
+        _gitCts = null;
+        _sizeJob?.Cts.Cancel();
+        _sizeJob = null;
+    }
+
+    /// <summary>
+    /// Dopo ogni lettura della cartella: stato Git e dimensioni delle sottocartelle, ognuno su un proprio thread.
+    /// Se la cartella si aggiorna da sola (file cambiati), il calcolo delle dimensioni in corso continua.
+    /// </summary>
+    private void StartBackgroundDetails(IReadOnlyList<FileEntry> entries)
+    {
+        StartGitStatus(entries);
+        StartFolderSizes();
+    }
+
+    private void StartGitStatus(IReadOnlyList<FileEntry> entries)
+    {
+        _gitCts?.Cancel();
+        _gitCts = null;
+        if (_services.Git is not { } git || _services.ShowGitStatus?.Invoke() == false || _all.Count == 0)
+        {
+            return;
+        }
+
+        var cts = _gitCts = new CancellationTokenSource();
+        var token = cts.Token;
+        var folder = CurrentPath;
+        var items = _all.ToDictionary(i => i.Name, StringComparer.OrdinalIgnoreCase);
+
+        _ = Task.Run(() =>
+        {
+            IReadOnlyDictionary<string, GitItemStatus> statuses;
+            try
+            {
+                statuses = git.GetFolderStatus(folder, entries, token);
+            }
+            catch (OperationCanceledException)
+            {
+                return;
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException)
+            {
+                return;
+            }
+
+            if (statuses.Count == 0 || token.IsCancellationRequested)
+            {
+                return;
+            }
+
+            _services.Ui.Post(() =>
+            {
+                if (token.IsCancellationRequested)
+                {
+                    return;
+                }
+
+                foreach (var (name, status) in statuses)
+                {
+                    if (items.TryGetValue(name, out var item))
+                    {
+                        item.GitStatus = status;
+                    }
+                }
+            });
+        }, token);
+    }
+
+    private void StartFolderSizes()
+    {
+        // Nella radice di un'unità o di una condivisione non si calcola: sarebbe come contare tutto il disco.
+        if (_services.FolderSizes is not { } sizes || _services.ShowFolderSizes?.Invoke() == false || PathHelper.IsVolumeRoot(CurrentPath))
+        {
+            _sizeJob?.Cts.Cancel();
+            _sizeJob = null;
+            return;
+        }
+
+        if (_sizeJob is null || !PathHelper.AreSame(_sizeJob.Folder, CurrentPath))
+        {
+            _sizeJob?.Cts.Cancel();
+            _sizeJob = new FolderSizeJob(CurrentPath);
+        }
+
+        var job = _sizeJob;
+
+        // Nell'ordine in cui si vedono: prima le cartelle in cima alla lista.
+        var folders = Items.Where(i => i.IsDirectory).Concat(_all.Where(i => i.IsDirectory)).Distinct().ToList();
+        bool start;
+        lock (job.Lock)
+        {
+            job.Queue.Clear();
+            foreach (var item in folders)
+            {
+                if (_folderSizeCache.TryGetValue(item.FullPath, out var cached) && cached.Modified == item.Modified)
+                {
+                    item.FolderSize = cached.Size;
+                    continue;
+                }
+
+                item.IsSizePending = true;
+                if (job.Current is null || !PathHelper.AreSame(job.Current, item.FullPath))
+                {
+                    job.Queue.Enqueue((item.FullPath, item.Modified));
+                }
+            }
+
+            start = job.Queue.Count > 0 && !job.Running;
+            if (start)
+            {
+                job.Running = true;
+            }
+        }
+
+        if (start)
+        {
+            var thread = new Thread(() => RunFolderSizeJob(sizes, job))
+            {
+                IsBackground = true,
+                Priority = ThreadPriority.BelowNormal,
+                Name = "Navigator: dimensione cartelle",
+            };
+            thread.Start();
+        }
+    }
+
+    private void RunFolderSizeJob(IFolderSizeService sizes, FolderSizeJob job)
+    {
+        var token = job.Cts.Token;
+        while (true)
+        {
+            (string Path, DateTime Modified) next;
+            lock (job.Lock)
+            {
+                if (job.Queue.Count == 0 || token.IsCancellationRequested)
+                {
+                    job.Running = false;
+                    job.Current = null;
+                    break;
+                }
+
+                next = job.Queue.Dequeue();
+                job.Current = next.Path;
+            }
+
+            var path = next.Path;
+            long? size;
+            try
+            {
+                size = sizes.GetSize(path, partial => _services.Ui.Post(() =>
+                {
+                    if (!token.IsCancellationRequested && _itemsByPath.TryGetValue(path, out var item) && item.IsSizePending)
+                    {
+                        item.FolderSize = partial;
+                    }
+                }), token);
+            }
+            catch (OperationCanceledException)
+            {
+                lock (job.Lock)
+                {
+                    job.Running = false;
+                    job.Current = null;
+                }
+
+                return;
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Security.SecurityException)
+            {
+                size = null;
+            }
+
+            _services.Ui.Post(() =>
+            {
+                if (token.IsCancellationRequested)
+                {
+                    return;
+                }
+
+                _folderSizeCache[path] = (next.Modified, size);
+                if (_itemsByPath.TryGetValue(path, out var item))
+                {
+                    item.FolderSize = size;
+                    item.IsSizePending = false;
+                    if (SelectedItems.Contains(item))
+                    {
+                        UpdateStatus();
+                    }
+                }
+            });
+        }
+
+        // Ordinate per dimensione: quando tutte sono pronte si riordina una volta sola.
+        _services.Ui.Post(() =>
+        {
+            if (!token.IsCancellationRequested && SortBy == SortColumn.Size)
+            {
+                ApplyFilterAndSort();
+            }
+        });
+    }
+
     public void Dispose()
     {
+        CancelBackgroundDetails();
         _loadCts?.Cancel();
         _watch?.Dispose();
         _watch = null;

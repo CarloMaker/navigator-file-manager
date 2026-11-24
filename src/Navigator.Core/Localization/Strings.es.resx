@@ -54,6 +54,9 @@
   <data name="EditorStatus" xml:space="preserve"><value>{0} · {1} líneas</value></data>
   <data name="EditorTitle" xml:space="preserve"><value>{0} - Editor de Navigator</value></data>
   <data name="EmptyFolder" xml:space="preserve"><value>Esta carpeta está vacía.</value></data>
+  <data name="FileChangedOnDisk" xml:space="preserve"><value>{0} fue modificado o eliminado por otro programa después de abrirlo.
+
+¿Guardar tu versión de todos modos?</value></data>
   <data name="FileTooLargeForEditor" xml:space="preserve"><value>El archivo es demasiado grande para el editor integrado (más de 20 MB).</value></data>
   <data name="FileTypeFallback" xml:space="preserve"><value>Archivo</value></data>
   <data name="FileTypes" xml:space="preserve"><value>Tipos de archivo</value></data>
@@ -73,6 +76,12 @@
   <data name="GestureViewDetails" xml:space="preserve"><value>Ctrl+Mayús+6</value></data>
   <data name="GestureViewLarge" xml:space="preserve"><value>Ctrl+Mayús+3</value></data>
   <data name="GestureViewMedium" xml:space="preserve"><value>Ctrl+Mayús+4</value></data>
+  <data name="GitAdded" xml:space="preserve"><value>Git: agregado</value></data>
+  <data name="GitConflicted" xml:space="preserve"><value>Git: en conflicto</value></data>
+  <data name="GitIgnored" xml:space="preserve"><value>Git: ignorado</value></data>
+  <data name="GitModified" xml:space="preserve"><value>Git: modificado</value></data>
+  <data name="GitNormal" xml:space="preserve"><value>Git: actualizado</value></data>
+  <data name="GitUntracked" xml:space="preserve"><value>Git: sin versionar</value></data>
   <data name="HiddenItems" xml:space="preserve"><value>Elementos ocultos</value></data>
   <data name="HidePanel" xml:space="preserve"><value>Ocultar panel</value></data>
   <data name="InvalidName" xml:space="preserve"><value>El nombre "{0}" contiene caracteres no válidos.</value></data>
@@ -121,6 +130,7 @@
   <data name="OpenAllInTabs" xml:space="preserve"><value>Abrir todo en pestañas</value></data>
   <data name="OpenDataFolder" xml:space="preserve"><value>Abrir la carpeta de datos de Navigator</value></data>
   <data name="OpenFileLocation" xml:space="preserve"><value>Abrir la ubicación del archivo</value></data>
+  <data name="OpenInEditorTip" xml:space="preserve"><value>Abrir en el editor (F4)</value></data>
   <data name="OpenInNewTab" xml:space="preserve"><value>Abrir en una pestaña nueva</value></data>
   <data name="OpenLocation" xml:space="preserve"><value>Abrir ubicación</value></data>
   <data name="OpticalDrive" xml:space="preserve"><value>Unidad de DVD</value></data>
@@ -141,6 +151,9 @@
   <data name="PortableSuffix" xml:space="preserve"><value> (portable)</value></data>
   <data name="Properties" xml:space="preserve"><value>Propiedades</value></data>
   <data name="QuickAccess" xml:space="preserve"><value>Acceso rápido</value></data>
+  <data name="QuickViewModified" xml:space="preserve"><value>modificado</value></data>
+  <data name="QuickViewPartial" xml:space="preserve"><value>vista previa parcial, archivo demasiado grande para editarlo aquí</value></data>
+  <data name="QuickViewReadOnly" xml:space="preserve"><value>solo lectura</value></data>
   <data name="Refresh" xml:space="preserve"><value>Actualizar</value></data>
   <data name="RefreshTip" xml:space="preserve"><value>Actualizar (F5)</value></data>
   <data name="RefreshTree" xml:space="preserve"><value>Actualizar árbol de carpetas</value></data>
@@ -157,8 +170,12 @@
   <data name="RestartForLanguage" xml:space="preserve"><value>El nuevo idioma se usará en el próximo inicio. ¿Reiniciar Navigator ahora?</value></data>
   <data name="Restore" xml:space="preserve"><value>Restaurar</value></data>
   <data name="RestoreSession" xml:space="preserve"><value>Restaurar</value></data>
+  <data name="RevertChangesTip" xml:space="preserve"><value>Descartar los cambios y volver a cargar el archivo</value></data>
   <data name="Save" xml:space="preserve"><value>Guardar</value></data>
   <data name="SaveChangesConfirm" xml:space="preserve"><value>¿Guardar los cambios en {0}?</value></data>
+  <data name="SaveChangesQuickView" xml:space="preserve"><value>{0} se modificó en la vista rápida.
+
+¿Guardar los cambios?</value></data>
   <data name="SaveFailed" xml:space="preserve"><value>No se puede guardar el archivo:
 
 {0}</value></data>
@@ -180,6 +197,8 @@
   <data name="SessionNamePrompt" xml:space="preserve"><value>Nombre de la sesión:</value></data>
   <data name="SessionReplaceConfirm" xml:space="preserve"><value>Ya existe una sesión "{0}". ¿Quieres reemplazarla?</value></data>
   <data name="SessionTabs" xml:space="preserve"><value>{0} pestañas</value></data>
+  <data name="ShowFolderSizes" xml:space="preserve"><value>Calcular el tamaño de las carpetas</value></data>
+  <data name="ShowGitStatus" xml:space="preserve"><value>Mostrar el estado de Git en los iconos</value></data>
   <data name="SizeBytes" xml:space="preserve"><value>{0} bytes</value></data>
   <data name="StartupFailed" xml:space="preserve"><value>Navigator no se pudo iniciar:
 

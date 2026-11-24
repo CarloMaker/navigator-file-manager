@@ -23,6 +23,8 @@ public sealed partial class MainViewModel : ObservableObject
     private readonly IFolderWatcher _watcher;
     private readonly IUiDispatcher _ui;
     private readonly IKnownFolders _knownFolders;
+    private readonly IGitStatusService? _git;
+    private readonly IFolderSizeService? _folderSizes;
     private bool _initializing;
 
     [ObservableProperty]
@@ -39,6 +41,14 @@ public sealed partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     private bool _syncFolderTree = true;
+
+    /// <summary>Badge di stato Git sulle icone della lista.</summary>
+    [ObservableProperty]
+    private bool _showGitStatus = true;
+
+    /// <summary>Dimensione delle cartelle calcolata in background.</summary>
+    [ObservableProperty]
+    private bool _showFolderSizes = true;
 
     [ObservableProperty]
     private string _freeSpaceText = string.Empty;
@@ -64,8 +74,12 @@ public sealed partial class MainViewModel : ObservableObject
         ISettingsStore store,
         IFolderWatcher watcher,
         IUiDispatcher ui,
-        IKnownFolders knownFolders)
+        IKnownFolders knownFolders,
+        IGitStatusService? git = null,
+        IFolderSizeService? folderSizes = null)
     {
+        _git = git;
+        _folderSizes = folderSizes;
         _fileSystem = fileSystem;
         _shell = shell;
         _operations = operations;
@@ -131,6 +145,8 @@ public sealed partial class MainViewModel : ObservableObject
         RestoreLastSession = Settings.RestoreLastSession;
         ViewMode = Settings.ViewMode;
         SyncFolderTree = Settings.SyncFolderTree;
+        ShowGitStatus = Settings.ShowGitStatus;
+        ShowFolderSizes = Settings.ShowFolderSizes;
 
         foreach (var node in _store.LoadBookmarks())
         {
@@ -180,6 +196,8 @@ public sealed partial class MainViewModel : ObservableObject
         Settings.RestoreLastSession = RestoreLastSession;
         Settings.ViewMode = ViewMode;
         Settings.SyncFolderTree = SyncFolderTree;
+        Settings.ShowGitStatus = ShowGitStatus;
+        Settings.ShowFolderSizes = ShowFolderSizes;
         Settings.LastSession = CaptureSession(string.Empty);
         _store.SaveSettings(Settings);
         SaveBookmarks();
@@ -200,7 +218,9 @@ public sealed partial class MainViewModel : ObservableObject
 
     private TabViewModel CreateTab()
     {
-        var tab = new TabViewModel(new TabServices(_fileSystem, _shell, _watcher, _ui), () => ShowHidden);
+        var tab = new TabViewModel(
+            new TabServices(_fileSystem, _shell, _watcher, _ui, _git, _folderSizes, () => ShowGitStatus, () => ShowFolderSizes),
+            () => ShowHidden);
         tab.PropertyChanged += OnTabPropertyChanged;
         return tab;
     }
@@ -448,6 +468,24 @@ public sealed partial class MainViewModel : ObservableObject
         finally
         {
             IsSyncingTree = false;
+        }
+    }
+
+    partial void OnShowGitStatusChanged(bool value) => RefreshTabsForOption(() => Settings.ShowGitStatus = value);
+
+    partial void OnShowFolderSizesChanged(bool value) => RefreshTabsForOption(() => Settings.ShowFolderSizes = value);
+
+    private void RefreshTabsForOption(Action save)
+    {
+        if (_initializing)
+        {
+            return;
+        }
+
+        save();
+        foreach (var tab in Tabs)
+        {
+            _ = tab.RefreshAsync();
         }
     }
 

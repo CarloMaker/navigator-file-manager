@@ -7,6 +7,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:Navigator.Presentation.ViewModels;assembly=Navigator.Presentation"
+        xmlns:avalon="http://icsharpcode.net/sharpdevelop/avalonedit"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=vm:MainViewModel}"
         Title="{Binding SelectedTab.Title, StringFormat={}{0} - Navigator, FallbackValue=Navigator}"
@@ -75,16 +76,20 @@
 
         <DataTemplate x:Key="Nav.MediumTile">
             <StackPanel Width="88" ToolTip="{Binding FullPath}" Opacity="{Binding IsHidden, Converter={StaticResource HiddenToOpacity}}">
-                <Image Width="48" Height="48" Margin="0,4,0,4" HorizontalAlignment="Center" RenderOptions.BitmapScalingMode="HighQuality"
-                       ctl:Thumbnail.Size="48" ctl:Thumbnail.Item="{Binding}" />
+                <Grid Width="48" Height="48" Margin="0,4,0,4" HorizontalAlignment="Center">
+                    <Image RenderOptions.BitmapScalingMode="HighQuality" ctl:Thumbnail.Size="48" ctl:Thumbnail.Item="{Binding}" />
+                    <ctl:GitBadge Width="16" Height="16" HorizontalAlignment="Left" VerticalAlignment="Bottom" Status="{Binding GitStatus}" />
+                </Grid>
                 <TextBlock Text="{Binding Name}" TextAlignment="Center" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" MaxHeight="32" />
             </StackPanel>
         </DataTemplate>
 
         <DataTemplate x:Key="Nav.LargeTile">
             <StackPanel Width="132" ToolTip="{Binding FullPath}" Opacity="{Binding IsHidden, Converter={StaticResource HiddenToOpacity}}">
-                <Image Width="112" Height="112" Margin="0,4,0,4" HorizontalAlignment="Center" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"
-                       ctl:Thumbnail.Size="128" ctl:Thumbnail.Item="{Binding}" />
+                <Grid Width="112" Height="112" Margin="0,4,0,4" HorizontalAlignment="Center">
+                    <Image Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality" ctl:Thumbnail.Size="128" ctl:Thumbnail.Item="{Binding}" />
+                    <ctl:GitBadge Width="26" Height="26" Margin="4,0,0,4" HorizontalAlignment="Left" VerticalAlignment="Bottom" Status="{Binding GitStatus}" />
+                </Grid>
                 <TextBlock Text="{Binding Name}" TextAlignment="Center" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" MaxHeight="32" />
             </StackPanel>
         </DataTemplate>
@@ -407,6 +412,8 @@
                                 <Separator />
                                 <MenuItem Header="{x:Static loc:Strings.ReopenTabs}" IsCheckable="True" IsChecked="{Binding RestoreLastSession, Mode=TwoWay}" />
                                 <MenuItem Header="{x:Static loc:Strings.SyncFolderTree}" IsCheckable="True" IsChecked="{Binding SyncFolderTree, Mode=TwoWay}" />
+                                <MenuItem Header="{x:Static loc:Strings.ShowGitStatus}" IsCheckable="True" IsChecked="{Binding ShowGitStatus, Mode=TwoWay}" />
+                                <MenuItem Header="{x:Static loc:Strings.ShowFolderSizes}" IsCheckable="True" IsChecked="{Binding ShowFolderSizes, Mode=TwoWay}" />
                                 <MenuItem Header="{x:Static loc:Strings.RefreshTree}" Command="{Binding BuildTreeCommand}" />
                             </ContextMenu>
                         </Button.ContextMenu>
@@ -526,7 +533,11 @@
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
                                             <StackPanel Orientation="Horizontal" Opacity="{Binding IsHidden, Converter={StaticResource HiddenToOpacity}}">
-                                                <Image Width="16" Height="16" Margin="2,0,10,0" Source="{Binding Converter={StaticResource Icon}}" />
+                                                <Grid Width="16" Height="16" Margin="2,0,10,0">
+                                                    <Image Source="{Binding Converter={StaticResource Icon}}" />
+                                                    <ctl:GitBadge Width="10" Height="10" Margin="-2,0,0,-2" HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                                                                  Status="{Binding GitStatus}" />
+                                                </Grid>
                                                 <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" ToolTip="{Binding FullPath}" />
                                             </StackPanel>
                                         </DataTemplate>
@@ -662,7 +673,7 @@
                     <TextBlock Style="{StaticResource Nav.SectionHeader}" Text="{x:Static loc:Strings.PanelBookmarks}" />
                 </DockPanel>
                 <Grid>
-                    <TreeView x:Name="BookmarkTree" ItemsSource="{Binding Bookmarks}" AllowDrop="True"
+                    <TreeView x:Name="BookmarkTree" ItemsSource="{Binding Bookmarks}" AllowDrop="True" ctl:CompactRows.Auto="True"
                               Background="Transparent" BorderThickness="0" Padding="0,0,0,8"
                               Foreground="{DynamicResource Nav.Text}"
                               SelectedItemChanged="OnBookmarkSelectionChanged"
@@ -679,6 +690,13 @@
                                 <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
                                 <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
                                 <Setter Property="Foreground" Value="{DynamicResource Nav.Text}" />
+                                <Style.Triggers>
+                                    <!-- Tante voci: righe da ~23 px (il tema Fluent usa Padding 4 e Margin 0,0,0,2 applicato due volte) -->
+                                    <Trigger Property="ctl:CompactRows.IsCompact" Value="True">
+                                        <Setter Property="Padding" Value="4,0" />
+                                        <Setter Property="Margin" Value="0" />
+                                    </Trigger>
+                                </Style.Triggers>
                             </Style>
                         </TreeView.ItemContainerStyle>
                         <TreeView.Resources>
@@ -786,7 +804,7 @@
                     </StackPanel>
                     <TextBlock Style="{StaticResource Nav.SectionHeader}" Text="{x:Static loc:Strings.PanelFolders}" />
                 </DockPanel>
-                <TreeView x:Name="FolderTree" ItemsSource="{Binding TreeRoots}"
+                <TreeView x:Name="FolderTree" ItemsSource="{Binding TreeRoots}" ctl:CompactRows.Auto="True"
                           Background="Transparent" BorderThickness="0" Padding="0,0,0,8"
                           Foreground="{DynamicResource Nav.Text}"
                           SelectedItemChanged="OnTreeSelectionChanged"
@@ -796,6 +814,12 @@
                             <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
                             <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
                             <Setter Property="Foreground" Value="{DynamicResource Nav.Text}" />
+                            <Style.Triggers>
+                                <Trigger Property="ctl:CompactRows.IsCompact" Value="True">
+                                    <Setter Property="Padding" Value="4,0" />
+                                    <Setter Property="Margin" Value="0" />
+                                </Trigger>
+                            </Style.Triggers>
                         </Style>
                     </TreeView.ItemContainerStyle>
                     <TreeView.Resources>
@@ -868,14 +892,38 @@
                                Source="{Binding FilePath, Converter={StaticResource ImagePath}}"
                                Visibility="{Binding Kind, Converter={StaticResource EnumToVisibility}, ConverterParameter=Image}" />
 
-                        <Border Grid.Row="2" CornerRadius="4" Background="{DynamicResource Nav.CodeBackground}"
-                                BorderBrush="{DynamicResource Nav.Divider}" BorderThickness="1"
-                                Visibility="{Binding Kind, Converter={StaticResource EnumToVisibility}, ConverterParameter=Text}">
-                            <TextBox Text="{Binding Text, Mode=OneWay}" IsReadOnly="True" BorderThickness="0" Background="Transparent"
-                                     Foreground="{DynamicResource Nav.Text}" FontFamily="{StaticResource Nav.MonoFont}" FontSize="11"
-                                     TextWrapping="NoWrap" Padding="8" AcceptsReturn="True"
-                                     HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" />
-                        </Border>
+                        <!-- Testo: si modifica direttamente qui e si salva con Ctrl+S, mantenendo la codifica del file -->
+                        <DockPanel Grid.Row="2" Visibility="{Binding Kind, Converter={StaticResource EnumToVisibility}, ConverterParameter=Text}">
+                            <DockPanel DockPanel.Dock="Top" Margin="0,0,0,6">
+                                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                    <Button Style="{StaticResource Nav.IconButton}" Width="28" Height="26" FontSize="13" Content="&#xE74E;"
+                                            ToolTip="{x:Static loc:Strings.SaveTip}" Command="{Binding SaveChangesCommand}" />
+                                    <Button Style="{StaticResource Nav.IconButton}" Width="28" Height="26" FontSize="13" Content="&#xE7A7;"
+                                            ToolTip="{x:Static loc:Strings.RevertChangesTip}" Command="{Binding RevertCommand}" />
+                                    <ToggleButton x:Name="QuickViewWrap" Style="{StaticResource Nav.IconButton}" Width="28" Height="26" FontSize="13"
+                                                  Content="&#xE751;" ToolTip="{x:Static loc:Strings.WordWrapTip}" />
+                                    <Button Style="{StaticResource Nav.IconButton}" Width="28" Height="26" FontSize="13" Content="&#xE8A7;"
+                                            ToolTip="{x:Static loc:Strings.OpenInEditorTip}" Click="OnQuickViewOpenInEditor" />
+                                </StackPanel>
+                                <TextBlock Text="{Binding TextStatus}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                                           ToolTip="{Binding TextStatus}" Foreground="{DynamicResource Nav.TextSecondary}" FontSize="11" />
+                            </DockPanel>
+                            <Border CornerRadius="4" Background="{DynamicResource Nav.CodeBackground}"
+                                    BorderBrush="{DynamicResource Nav.Divider}" BorderThickness="1" Padding="2">
+                                <avalon:TextEditor x:Name="QuickViewEditor"
+                                                   FontFamily="{StaticResource Nav.MonoFont}" FontSize="11.5"
+                                                   ShowLineNumbers="True" Padding="4"
+                                                   Background="Transparent"
+                                                   Foreground="{DynamicResource Nav.Text}"
+                                                   LineNumbersForeground="{DynamicResource Nav.TextSecondary}"
+                                                   WordWrap="{Binding IsChecked, ElementName=QuickViewWrap}"
+                                                   HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                                    <avalon:TextEditor.InputBindings>
+                                        <KeyBinding Gesture="Ctrl+S" Command="{Binding SaveChangesCommand}" />
+                                    </avalon:TextEditor.InputBindings>
+                                </avalon:TextEditor>
+                            </Border>
+                        </DockPanel>
 
                         <Grid Grid.Row="2" Visibility="{Binding Kind, Converter={StaticResource EnumToVisibility}, ConverterParameter=Media}">
                             <Grid.RowDefinitions>

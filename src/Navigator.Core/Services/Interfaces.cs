@@ -113,3 +113,24 @@ public interface IKnownFolders
 
     string Home { get; }
 }
+
+/// <summary>Stato Git degli elementi di una cartella, calcolato da Navigator (serve Git per Windows).</summary>
+public interface IGitStatusService
+{
+    /// <summary>
+    /// Stato di ogni elemento della cartella, per nome. Vuoto se la cartella non è in un repository
+    /// e non contiene repository, o se Git non è installato. Lento: va chiamato in background.
+    /// </summary>
+    IReadOnlyDictionary<string, GitItemStatus> GetFolderStatus(string folder, IReadOnlyList<FileEntry> entries, CancellationToken cancellationToken);
+}
+
+/// <summary>Dimensione totale di una cartella (file in tutte le sottocartelle).</summary>
+public interface IFolderSizeService
+{
+    /// <summary>
+    /// Somma le dimensioni dei file. <paramref name="progress"/> riceve di tanto in tanto il totale parziale.
+    /// Le cartelle non accessibili vengono saltate; i collegamenti (junction) non si seguono.
+    /// </summary>
+    /// <returns>Null se la cartella è un collegamento (junction o link simbolico), che non si conta.</returns>
+    long? GetSize(string folder, Action<long>? progress, CancellationToken cancellationToken);
+}

@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.1.1 — 2026-11-24
+
+- Quick View: text files can be edited in place. Ctrl+S saves, keeping the file's encoding (UTF-8 with or
+  without BOM, UTF-16, ANSI); undo changes, word wrap and "open in the editor" buttons. Navigator asks before
+  discarding unsaved changes and before overwriting a file that another program changed. Files over 4 MB and
+  read-only files stay read-only.
+- The built-in editor no longer converts ANSI files to UTF-8 on save, and can save hidden files.
+- Git status badges on file and folder icons, like TortoiseGit overlays: up to date, modified, added,
+  unversioned, ignored and conflicted. Navigator computes them itself with Git for Windows (read-only,
+  `--no-optional-locks`); folders that are repositories show a summary when seen from outside.
+- Folder sizes in the Size column, calculated on a separate low-priority thread (running total while counting,
+  F5 recalculates, sorting by size includes folders). Junctions and symbolic links are not followed.
+  Not calculated in the root of a drive or network share.
+- Both can be turned off in More options.
+
 ## 0.1.0 — first public release
 
 First preview of Navigator File Manager, a tabbed file manager for Windows 10/11 inspired by CubicExplorer

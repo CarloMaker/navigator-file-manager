@@ -108,6 +108,12 @@ public sealed class AppSettings
     /// <summary>L'albero delle cartelle si apre fino alla cartella mostrata nella scheda.</summary>
     public bool SyncFolderTree { get; set; } = true;
 
+    /// <summary>Badge di stato Git (aggiornato, modificato, nuovo...) sulle icone della lista.</summary>
+    public bool ShowGitStatus { get; set; } = true;
+
+    /// <summary>Dimensione delle cartelle calcolata in background.</summary>
+    public bool ShowFolderSizes { get; set; } = true;
+
     public double LeftPaneWidth { get; set; } = 240;
     public double RightPaneWidth { get; set; } = 280;
 
@@ -160,4 +166,29 @@ public enum FileViewMode
     Details,
     MediumIcons,
     LargeIcons,
+}
+
+/// <summary>Stato di un file o di una cartella in un repository Git, come gli overlay di TortoiseGit.</summary>
+public enum GitItemStatus
+{
+    /// <summary>Fuori da un repository (nessun badge).</summary>
+    None,
+
+    /// <summary>Versionato e senza modifiche.</summary>
+    Normal,
+
+    /// <summary>Modificato (per le cartelle: contiene modifiche).</summary>
+    Modified,
+
+    /// <summary>Aggiunto all'indice ma non ancora nel commit.</summary>
+    Added,
+
+    /// <summary>Non versionato.</summary>
+    Untracked,
+
+    /// <summary>Ignorato (.gitignore).</summary>
+    Ignored,
+
+    /// <summary>In conflitto dopo un merge.</summary>
+    Conflicted,
 }

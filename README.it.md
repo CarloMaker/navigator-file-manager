@@ -46,7 +46,8 @@ Impostazioni, segnalibri e sessioni verranno salvati in `Data\` invece che in `%
 - **Segnalibri** a cartelle e file, organizzati in **cartelle virtuali**, con trascinamento; una cartella di segnalibri si apre tutta in schede.
 - **Sessioni**: insiemi di schede salvati e ripristinati; le ultime schede si riaprono all'avvio.
 - **Filtri**: testo, caratteri jolly e caselle per estensione.
-- **Quick View**: anteprima di immagini, testo, audio e video.
+- **Quick View**: anteprima di immagini, testo, audio e video; i file di testo si modificano al volo (Ctrl+S per salvare).
+- **Badge di stato Git** sulle icone (serve Git per Windows) e **dimensione delle cartelle** calcolata in background.
 - **Ricerca** nella cartella corrente e nelle sottocartelle.
 - **Drop Stack**: raccogli file da più cartelle, poi copiali o spostali tutti insieme.
 - **Editor di testo** con evidenziazione della sintassi (F4).

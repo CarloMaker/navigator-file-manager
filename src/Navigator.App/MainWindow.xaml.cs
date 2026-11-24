@@ -13,10 +13,13 @@ using Navigator.Core.Models;
 using Navigator.Core.Services;
 using Navigator.Presentation.ViewModels;
 using Navigator.Core.Localization;
+using Navigator.Core.Utilities;
+using ICSharpCode.AvalonEdit;
+using ICSharpCode.AvalonEdit.Highlighting;
 
 namespace Navigator.App;
 
-public partial class MainWindow : Window
+public partial class MainWindow : Window, IQuickViewEditorHost
 {
     private const string TabDragFormat = "Navigator.Tab";
     private const string PanelDragFormat = "Navigator.Panel";
@@ -55,6 +58,10 @@ public partial class MainWindow : Window
     private bool _restartOnClose;
     private DispatcherTimer? _driveRefreshTimer;
 
+    // Editor della Quick View
+    private bool _loadingQuickViewText;
+    private string? _quickViewEditorPath;
+
     public MainWindow(MainViewModel viewModel, IShellService shell)
     {
         InitializeComponent();
@@ -64,6 +71,10 @@ public partial class MainWindow : Window
 
         viewModel.PropertyChanged += OnViewModelPropertyChanged;
         viewModel.QuickView.PropertyChanged += OnQuickViewPropertyChanged;
+        viewModel.QuickView.DocumentLoaded += OnQuickViewDocumentLoaded;
+        viewModel.QuickView.Host = this;
+        DependencyPropertyDescriptor.FromProperty(TextEditor.IsModifiedProperty, typeof(TextEditor))
+            .AddValueChanged(QuickViewEditor, OnQuickViewEditorModifiedChanged);
         viewModel.EditFileRequested += (_, path) => OpenEditor(path);
         viewModel.Layout.LayoutChanged += (_, _) => RebuildDocks();
 
@@ -116,6 +127,12 @@ public partial class MainWindow : Window
 
     private void OnClosing(object? sender, CancelEventArgs e)
     {
+        if (!ConfirmQuickViewClose())
+        {
+            e.Cancel = true;
+            return;
+        }
+
         foreach (var editor in Application.Current.Windows.OfType<EditorWindow>().ToList())
         {
             if (!editor.ConfirmDiscard())
@@ -403,6 +420,31 @@ public partial class MainWindow : Window
 
     private void OnQuickViewPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
+        switch (e.PropertyName)
+        {
+            case nameof(QuickViewViewModel.IsEditable):
+                QuickViewEditor.IsReadOnly = !_vm.QuickView.IsEditable;
+                return;
+            case nameof(QuickViewViewModel.IsDirty):
+                if (!_vm.QuickView.IsDirty && QuickViewEditor.IsModified)
+                {
+                    // Salvato o scartato: il punto attuale diventa la versione "originale".
+                    _loadingQuickViewText = true;
+                    QuickViewEditor.IsModified = false;
+                    _loadingQuickViewText = false;
+                }
+
+                return;
+            case nameof(QuickViewViewModel.Kind) when _vm.QuickView.Kind != QuickViewKind.Text && _quickViewEditorPath is not null:
+                // Non è più un testo: si libera il documento.
+                _loadingQuickViewText = true;
+                QuickViewEditor.Text = string.Empty;
+                QuickViewEditor.IsModified = false;
+                _loadingQuickViewText = false;
+                _quickViewEditorPath = null;
+                break;
+        }
+
         if (e.PropertyName is not (nameof(QuickViewViewModel.Kind) or nameof(QuickViewViewModel.FilePath)))
         {
             return;
@@ -424,6 +466,98 @@ public partial class MainWindow : Window
             MediaPreview.Source = null;
         }
     }
+
+    /// <summary>Mette nell'editor della Quick View il testo appena letto dal disco.</summary>
+    private void OnQuickViewDocumentLoaded(object? sender, EventArgs e)
+    {
+        var quickView = _vm.QuickView;
+        var path = quickView.FilePath;
+        var samePath = path is not null && _quickViewEditorPath is not null && PathHelper.AreSame(path, _quickViewEditorPath);
+
+        _loadingQuickViewText = true;
+        try
+        {
+            var caret = QuickViewEditor.CaretOffset;
+            var vertical = QuickViewEditor.VerticalOffset;
+            var horizontal = QuickViewEditor.HorizontalOffset;
+
+            QuickViewEditor.Text = quickView.Text ?? string.Empty;
+            QuickViewEditor.IsReadOnly = !quickView.IsEditable;
+            QuickViewEditor.IsModified = false;
+
+            if (samePath)
+            {
+                // Stesso file ricaricato (annulla modifiche o cambiato da un altro programma): si resta allo stesso punto.
+                QuickViewEditor.CaretOffset = Math.Min(caret, QuickViewEditor.Document.TextLength);
+                QuickViewEditor.ScrollToVerticalOffset(vertical);
+                QuickViewEditor.ScrollToHorizontalOffset(horizontal);
+            }
+            else
+            {
+                QuickViewEditor.SyntaxHighlighting = path is null
+                    ? null
+                    : HighlightingManager.Instance.GetDefinitionByExtension(Path.GetExtension(path));
+                QuickViewEditor.ScrollToHome();
+            }
+
+            _quickViewEditorPath = path;
+        }
+        finally
+        {
+            _loadingQuickViewText = false;
+        }
+    }
+
+    private void OnQuickViewEditorModifiedChanged(object? sender, EventArgs e)
+    {
+        if (!_loadingQuickViewText)
+        {
+            _vm.QuickView.SetModified(QuickViewEditor.IsModified);
+        }
+    }
+
+    private void OnQuickViewOpenInEditor(object sender, RoutedEventArgs e)
+    {
+        var quickView = _vm.QuickView;
+        if (quickView.FilePath is not { } path || (quickView.IsDirty && !quickView.Save()))
+        {
+            return;
+        }
+
+        OpenEditor(path);
+    }
+
+    /// <summary>Modifiche non salvate nella Quick View alla chiusura: Sì salva, No scarta, Annulla resta aperto.</summary>
+    private bool ConfirmQuickViewClose()
+    {
+        var quickView = _vm.QuickView;
+        if (!quickView.IsDirty || quickView.FilePath is not { } path)
+        {
+            return true;
+        }
+
+        var answer = MessageBox.Show(this, Strings.Format(Strings.SaveChangesQuickView, Path.GetFileName(path)), "Navigator",
+            MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+        return answer switch
+        {
+            MessageBoxResult.Yes => quickView.Save(),
+            MessageBoxResult.No => true,
+            _ => false,
+        };
+    }
+
+    string IQuickViewEditorHost.GetText() => QuickViewEditor.Text;
+
+    bool IQuickViewEditorHost.AskSaveChanges(string fileName) =>
+        MessageBox.Show(this, Strings.Format(Strings.SaveChangesQuickView, fileName), "Navigator",
+            MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
+
+    bool IQuickViewEditorHost.ConfirmOverwrite(string fileName) =>
+        MessageBox.Show(this, Strings.Format(Strings.FileChangedOnDisk, fileName), "Navigator",
+            MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes;
+
+    void IQuickViewEditorHost.ShowError(string message) =>
+        MessageBox.Show(this, message, "Navigator", MessageBoxButton.OK, MessageBoxImage.Warning);
 
     private void OnMediaPlay(object sender, RoutedEventArgs e) => MediaPreview.Play();
 
