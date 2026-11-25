@@ -6,7 +6,10 @@ using System.Windows.Threading;
 namespace Navigator.App;
 
 /// <summary>
-/// Righe che si compattano da sole: finché le voci entrano nel pannello all'altezza normale
+/// Righe compatte nei pannelli. Dal 25/11, su richiesta dell'utente, i pannelli impostano direttamente
+/// <see cref="IsCompactProperty"/> a true (righe sempre compatte); il comportamento automatico
+/// (<see cref="AutoProperty"/>) resta disponibile ma non è usato.
+/// Comportamento automatico: righe che si compattano da sole: finché le voci entrano nel pannello all'altezza normale
 /// l'elenco resta arioso; quando non ci stanno più, <see cref="IsCompactProperty"/> diventa vero
 /// e gli stili degli elementi riducono la riga a circa 23 px (vedi i trigger in App.xaml e MainWindow.xaml).
 /// La decisione usa il numero di righe visibili e l'altezza normale misurata, non l'estensione attuale

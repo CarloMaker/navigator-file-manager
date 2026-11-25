@@ -259,7 +259,7 @@
                                 <Trigger Property="IsSelected" Value="True">
                                     <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Nav.NavSelected}" />
                                 </Trigger>
-                                <!-- Tante voci nel pannello: righe da ~23 px invece di ~31 (vedi CompactRows) -->
+                                <!-- Righe compatte: ~23 px invece di ~31 (sempre attive, vedi CompactRows) -->
                                 <Trigger Property="ctl:CompactRows.IsCompact" Value="True">
                                     <Setter TargetName="Bd" Property="Padding" Value="8,1" />
                                 </Trigger>
@@ -270,10 +270,11 @@
             </Style>
 
             <Style x:Key="Nav.PaneList" TargetType="ListBox">
-                <Setter Property="ctl:CompactRows.Auto" Value="True" />
+                <Setter Property="ctl:CompactRows.IsCompact" Value="True" />
                 <Setter Property="Background" Value="Transparent" />
                 <Setter Property="BorderThickness" Value="0" />
-                <Setter Property="Padding" Value="0" />
+                <!-- Margine esterno: con le voci a Margin 4,1 il testo sta a 6 px dai bordi, come negli alberi -->
+                <Setter Property="Padding" Value="2,4,2,8" />
                 <Setter Property="ItemContainerStyle" Value="{StaticResource Nav.PaneItem}" />
                 <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
             </Style>

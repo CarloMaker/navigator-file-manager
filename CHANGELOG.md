@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.3 — 2026-11-25
+
+- Panels (Bookmarks, Folders, Sessions, Drop Stack) now always use compact rows (about 23 px), not only when
+  the items no longer fit, with some padding around the lists so they don't touch the panel edges.
+- The address bar and the search box moved into the central column too, above the toolbar: the side panels now
+  reach up to the tab bar. In a narrow column the search box shrinks (down to 140 px).
+
 ## 0.1.2 — 2026-11-25
 
 - Drive bar above the Folders panel, like CubicExplorer: one button per drive (icon and letter). Click opens the

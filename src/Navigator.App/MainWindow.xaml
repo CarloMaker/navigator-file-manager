@@ -242,7 +242,6 @@
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="40" />
-                <RowDefinition Height="48" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="28" />
             </Grid.RowDefinitions>
@@ -300,86 +299,8 @@
                 </StackPanel>
             </DockPanel>
 
-            <!-- ===================== Riga 1: indirizzo e ricerca ===================== -->
-            <Grid Grid.Row="1" Background="{DynamicResource Nav.Toolbar}">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="280" />
-                </Grid.ColumnDefinitions>
-
-
-                <!-- Barra indirizzi: breadcrumb, oppure testo modificabile (clic sullo spazio vuoto o Ctrl+L) -->
-                <Border Grid.Column="1" Style="{StaticResource Nav.InputBox}" Margin="8,0,8,0">
-                    <Grid>
-                        <DockPanel Visibility="{Binding IsEditingAddress, Converter={StaticResource InverseBoolToVisibility}}" LastChildFill="True">
-                            <Image DockPanel.Dock="Left" Width="16" Height="16" Margin="10,0,2,0"
-                                   Source="{Binding SelectedTab.CurrentPath, Converter={StaticResource Icon}}" />
-                            <ItemsControl DockPanel.Dock="Left" ItemsSource="{Binding SelectedTab.Breadcrumbs}" VerticalAlignment="Center" ClipToBounds="True">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <StackPanel Orientation="Horizontal" />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="&#xE76C;" FontFamily="{StaticResource Nav.IconFont}" FontSize="8"
-                                                       Foreground="{DynamicResource Nav.TextSecondary}" VerticalAlignment="Center" Margin="4,1,2,0" />
-                                            <Button Style="{StaticResource Nav.BreadcrumbButton}" Content="{Binding Name}" ToolTip="{Binding FullPath}"
-                                                    Command="{Binding DataContext.NavigateCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                    CommandParameter="{Binding FullPath}" />
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                            <Border Background="Transparent" Cursor="IBeam" MouseLeftButtonDown="OnAddressBlankClick" />
-                        </DockPanel>
-
-                        <TextBox x:Name="AddressBox" Style="{StaticResource Nav.Input}" Margin="10,0"
-                                 Text="{Binding AddressText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                 Visibility="{Binding IsEditingAddress, Converter={StaticResource BoolToVisibility}}"
-                                 LostKeyboardFocus="OnAddressLostFocus">
-                            <TextBox.InputBindings>
-                                <KeyBinding Key="Enter" Command="{Binding CommitAddressCommand}" />
-                                <KeyBinding Key="Escape" Command="{Binding CancelEditAddressCommand}" />
-                            </TextBox.InputBindings>
-                        </TextBox>
-                    </Grid>
-                </Border>
-
-                <!-- Ricerca nella cartella corrente e sottocartelle -->
-                <Border Grid.Column="2" Style="{StaticResource Nav.InputBox}" Margin="0,0,12,0">
-                    <Grid>
-                        <TextBox x:Name="SearchBox" Style="{StaticResource Nav.Input}" Margin="10,0,32,0"
-                                 Text="{Binding SelectedTab.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-                            <TextBox.InputBindings>
-                                <KeyBinding Key="Enter" Command="{Binding SelectedTab.SearchCommand}" />
-                                <KeyBinding Key="Escape" Command="{Binding SelectedTab.ClearSearchCommand}" />
-                            </TextBox.InputBindings>
-                        </TextBox>
-                        <TextBlock Margin="11,0,32,0" VerticalAlignment="Center" IsHitTestVisible="False" TextTrimming="CharacterEllipsis"
-                                   Foreground="{DynamicResource Nav.TextSecondary}"
-                                   Text="{Binding SelectedTab.Title, Converter={StaticResource StringFormat}, ConverterParameter={x:Static loc:Strings.SearchIn}}">
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="Visibility" Value="Collapsed" />
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Text, ElementName=SearchBox}" Value="">
-                                            <Setter Property="Visibility" Value="Visible" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
-                        <Button HorizontalAlignment="Right" Style="{StaticResource Nav.IconButton}" Width="30" Height="28" FontSize="14"
-                                Content="&#xE721;" ToolTip="{x:Static loc:Strings.SearchTip}" Command="{Binding SelectedTab.SearchCommand}" />
-                    </Grid>
-                </Border>
-            </Grid>
-
-            <!-- ===================== Riga 2: pannelli e lista file ===================== -->
-            <Grid Grid.Row="2" Background="{DynamicResource Nav.Content}">
+            <!-- ===================== Riga 1: pannelli e lista file ===================== -->
+            <Grid Grid.Row="1" Background="{DynamicResource Nav.Content}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition x:Name="LeftColumn" Width="240" />
                     <ColumnDefinition Width="Auto" />
@@ -403,9 +324,87 @@
                         <RowDefinition x:Name="BottomRow" Height="0" />
                     </Grid.RowDefinitions>
 
+                <!-- Colonna centrale: indirizzo e ricerca, barra degli strumenti, lista -->
+                <DockPanel Grid.Row="0">
+                <!-- Barra indirizzi e ricerca, in cima alla colonna centrale (sopra la barra degli strumenti) -->
+                <Grid DockPanel.Dock="Top" Height="48" Background="{DynamicResource Nav.Toolbar}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="2*" />
+                        <ColumnDefinition Width="*" MinWidth="140" MaxWidth="280" />
+                    </Grid.ColumnDefinitions>
+
+
+                    <!-- Barra indirizzi: breadcrumb, oppure testo modificabile (clic sullo spazio vuoto o Ctrl+L) -->
+                    <Border Grid.Column="1" Style="{StaticResource Nav.InputBox}" Margin="8,0,8,0">
+                        <Grid>
+                            <DockPanel Visibility="{Binding IsEditingAddress, Converter={StaticResource InverseBoolToVisibility}}" LastChildFill="True">
+                                <Image DockPanel.Dock="Left" Width="16" Height="16" Margin="10,0,2,0"
+                                       Source="{Binding SelectedTab.CurrentPath, Converter={StaticResource Icon}}" />
+                                <ItemsControl DockPanel.Dock="Left" ItemsSource="{Binding SelectedTab.Breadcrumbs}" VerticalAlignment="Center" ClipToBounds="True">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Orientation="Horizontal" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="&#xE76C;" FontFamily="{StaticResource Nav.IconFont}" FontSize="8"
+                                                           Foreground="{DynamicResource Nav.TextSecondary}" VerticalAlignment="Center" Margin="4,1,2,0" />
+                                                <Button Style="{StaticResource Nav.BreadcrumbButton}" Content="{Binding Name}" ToolTip="{Binding FullPath}"
+                                                        Command="{Binding DataContext.NavigateCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                        CommandParameter="{Binding FullPath}" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <Border Background="Transparent" Cursor="IBeam" MouseLeftButtonDown="OnAddressBlankClick" />
+                            </DockPanel>
+
+                            <TextBox x:Name="AddressBox" Style="{StaticResource Nav.Input}" Margin="10,0"
+                                     Text="{Binding AddressText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     Visibility="{Binding IsEditingAddress, Converter={StaticResource BoolToVisibility}}"
+                                     LostKeyboardFocus="OnAddressLostFocus">
+                                <TextBox.InputBindings>
+                                    <KeyBinding Key="Enter" Command="{Binding CommitAddressCommand}" />
+                                    <KeyBinding Key="Escape" Command="{Binding CancelEditAddressCommand}" />
+                                </TextBox.InputBindings>
+                            </TextBox>
+                        </Grid>
+                    </Border>
+
+                    <!-- Ricerca nella cartella corrente e sottocartelle -->
+                    <Border Grid.Column="2" Style="{StaticResource Nav.InputBox}" Margin="0,0,12,0">
+                        <Grid>
+                            <TextBox x:Name="SearchBox" Style="{StaticResource Nav.Input}" Margin="10,0,32,0"
+                                     Text="{Binding SelectedTab.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                <TextBox.InputBindings>
+                                    <KeyBinding Key="Enter" Command="{Binding SelectedTab.SearchCommand}" />
+                                    <KeyBinding Key="Escape" Command="{Binding SelectedTab.ClearSearchCommand}" />
+                                </TextBox.InputBindings>
+                            </TextBox>
+                            <TextBlock Margin="11,0,32,0" VerticalAlignment="Center" IsHitTestVisible="False" TextTrimming="CharacterEllipsis"
+                                       Foreground="{DynamicResource Nav.TextSecondary}"
+                                       Text="{Binding SelectedTab.Title, Converter={StaticResource StringFormat}, ConverterParameter={x:Static loc:Strings.SearchIn}}">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Text, ElementName=SearchBox}" Value="">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <Button HorizontalAlignment="Right" Style="{StaticResource Nav.IconButton}" Width="30" Height="28" FontSize="14"
+                                    Content="&#xE721;" ToolTip="{x:Static loc:Strings.SearchTip}" Command="{Binding SelectedTab.SearchCommand}" />
+                        </Grid>
+                    </Border>
+                </Grid>
                 <!-- Barra degli strumenti della lista: navigazione e comandi, come in CubicExplorer.
                      Se la colonna è stretta i pulsanti vanno a capo. -->
-                <DockPanel Grid.Row="0">
                 <Border DockPanel.Dock="Top" Background="{DynamicResource Nav.Toolbar}" BorderBrush="{DynamicResource Nav.Divider}" BorderThickness="0,0,0,1"
                         MinHeight="44" Padding="8,4">
                     <WrapPanel VerticalAlignment="Center">
@@ -686,7 +685,7 @@
 
             <!-- ===================== Pannelli ===================== -->
             <!-- Deposito dei pannelli: quelli visibili vengono spostati nei due lati, quelli nascosti restano qui. -->
-            <Grid x:Name="PanelStore" Grid.Row="2" Visibility="Collapsed">
+            <Grid x:Name="PanelStore" Grid.Row="1" Visibility="Collapsed">
 
             <!-- Segnalibri: cartelle e file; si riordinano trascinandoli e si aggiungono trascinando file o cartelle -->
             <DockPanel x:Name="BookmarksPanel" Tag="Bookmarks">
@@ -706,8 +705,8 @@
                     <TextBlock Style="{StaticResource Nav.SectionHeader}" Text="{x:Static loc:Strings.PanelBookmarks}" />
                 </DockPanel>
                 <Grid>
-                    <TreeView x:Name="BookmarkTree" ItemsSource="{Binding Bookmarks}" AllowDrop="True" ctl:CompactRows.Auto="True"
-                              Background="Transparent" BorderThickness="0" Padding="0,0,0,8"
+                    <TreeView x:Name="BookmarkTree" ItemsSource="{Binding Bookmarks}" AllowDrop="True" ctl:CompactRows.IsCompact="True"
+                              Background="Transparent" BorderThickness="0" Padding="6,4,6,8"
                               Foreground="{DynamicResource Nav.Text}"
                               SelectedItemChanged="OnBookmarkSelectionChanged"
                               MouseDoubleClick="OnBookmarkDoubleClick" PreviewMouseDown="OnBookmarkMouseDown" PreviewMouseMove="OnBookmarkMouseMove"
@@ -724,7 +723,7 @@
                                 <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
                                 <Setter Property="Foreground" Value="{DynamicResource Nav.Text}" />
                                 <Style.Triggers>
-                                    <!-- Tante voci: righe da ~23 px (il tema Fluent usa Padding 4 e Margin 0,0,0,2 applicato due volte) -->
+                                    <!-- Righe compatte da ~23 px, sempre (il tema Fluent usa Padding 4 e Margin 0,0,0,2 applicato due volte) -->
                                     <Trigger Property="ctl:CompactRows.IsCompact" Value="True">
                                         <Setter Property="Padding" Value="4,0" />
                                         <Setter Property="Margin" Value="0" />
@@ -859,8 +858,8 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </Border>
-                <TreeView x:Name="FolderTree" ItemsSource="{Binding TreeRoots}" ctl:CompactRows.Auto="True"
-                          Background="Transparent" BorderThickness="0" Padding="0,0,0,8"
+                <TreeView x:Name="FolderTree" ItemsSource="{Binding TreeRoots}" ctl:CompactRows.IsCompact="True"
+                          Background="Transparent" BorderThickness="0" Padding="6,4,6,8"
                           Foreground="{DynamicResource Nav.Text}"
                           SelectedItemChanged="OnTreeSelectionChanged"
                           PreviewMouseLeftButtonDown="OnTreeMouseDown" PreviewMouseMove="OnTreeMouseMove">
@@ -1116,8 +1115,8 @@
             </Grid>
 
 
-            <!-- ===================== Riga 3: barra di stato ===================== -->
-            <DockPanel Grid.Row="3" Background="{DynamicResource Nav.Content}">
+            <!-- ===================== Riga 2: barra di stato ===================== -->
+            <DockPanel Grid.Row="2" Background="{DynamicResource Nav.Content}">
                 <TextBlock DockPanel.Dock="Right" Margin="12,0" VerticalAlignment="Center" Foreground="{DynamicResource Nav.TextSecondary}"
                            Text="{Binding FreeSpaceText}" />
                 <TextBlock DockPanel.Dock="Right" Margin="12,0" VerticalAlignment="Center" Foreground="{DynamicResource Nav.TextSecondary}"
