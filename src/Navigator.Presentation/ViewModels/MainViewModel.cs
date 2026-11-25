@@ -42,6 +42,10 @@ public sealed partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private bool _syncFolderTree = true;
 
+    /// <summary>Barra delle unità sopra l'albero delle cartelle.</summary>
+    [ObservableProperty]
+    private bool _showDriveBar = true;
+
     /// <summary>Badge di stato Git sulle icone della lista.</summary>
     [ObservableProperty]
     private bool _showGitStatus = true;
@@ -102,6 +106,9 @@ public sealed partial class MainViewModel : ObservableObject
 
     public ObservableCollection<FolderNodeViewModel> TreeRoots { get; } = [];
 
+    /// <summary>Unità mostrate nella barra sopra l'albero delle cartelle; si aggiornano con l'albero.</summary>
+    public ObservableCollection<DriveButtonViewModel> DriveButtons { get; } = [];
+
     /// <summary>Radice dell'albero dei segnalibri: segnalibri e cartelle virtuali.</summary>
     public ObservableCollection<BookmarkItemViewModel> Bookmarks { get; } = [];
 
@@ -145,6 +152,7 @@ public sealed partial class MainViewModel : ObservableObject
         RestoreLastSession = Settings.RestoreLastSession;
         ViewMode = Settings.ViewMode;
         SyncFolderTree = Settings.SyncFolderTree;
+        ShowDriveBar = Settings.ShowDriveBar;
         ShowGitStatus = Settings.ShowGitStatus;
         ShowFolderSizes = Settings.ShowFolderSizes;
 
@@ -196,6 +204,7 @@ public sealed partial class MainViewModel : ObservableObject
         Settings.RestoreLastSession = RestoreLastSession;
         Settings.ViewMode = ViewMode;
         Settings.SyncFolderTree = SyncFolderTree;
+        Settings.ShowDriveBar = ShowDriveBar;
         Settings.ShowGitStatus = ShowGitStatus;
         Settings.ShowFolderSizes = ShowFolderSizes;
         Settings.LastSession = CaptureSession(string.Empty);
@@ -242,6 +251,7 @@ public sealed partial class MainViewModel : ObservableObject
                 }
 
                 SyncTree();
+                UpdateCurrentDrive();
                 break;
             case nameof(TabViewModel.SelectedItem):
                 UpdateQuickView();
@@ -256,6 +266,7 @@ public sealed partial class MainViewModel : ObservableObject
         UpdateFreeSpace();
         UpdateQuickView();
         SyncTree();
+        UpdateCurrentDrive();
     }
 
     public async Task<TabViewModel> OpenTabAsync(string path, bool select = true)
@@ -403,9 +414,28 @@ public sealed partial class MainViewModel : ObservableObject
             .Select(f => new FolderNodeViewModel(f.Name, f.Path, _fileSystem, () => ShowHidden, isRoot: true));
         TreeRoots.Add(FolderNodeViewModel.CreateGroup(Strings.QuickAccess, quick));
 
-        var drives = _fileSystem.GetDrives()
+        var driveList = _fileSystem.GetDrives();
+        var drives = driveList
             .Select(d => new FolderNodeViewModel(d.DisplayName, d.RootPath, _fileSystem, () => ShowHidden, isRoot: true));
         TreeRoots.Add(FolderNodeViewModel.CreateGroup(Strings.ThisPC, drives, PathHelper.ThisPc));
+
+        DriveButtons.Clear();
+        foreach (var drive in driveList)
+        {
+            DriveButtons.Add(new DriveButtonViewModel(drive));
+        }
+
+        UpdateCurrentDrive();
+    }
+
+    /// <summary>Evidenzia nella barra delle unità quella della scheda attiva.</summary>
+    private void UpdateCurrentDrive()
+    {
+        var path = SelectedTab?.CurrentPath;
+        foreach (var button in DriveButtons)
+        {
+            button.IsCurrent = button.Contains(path);
+        }
     }
 
     /// <summary>true mentre l'albero viene aperto dal codice: la vista non deve navigare.</summary>
@@ -488,6 +518,8 @@ public sealed partial class MainViewModel : ObservableObject
             _ = tab.RefreshAsync();
         }
     }
+
+    partial void OnShowDriveBarChanged(bool value) => Settings.ShowDriveBar = value;
 
     partial void OnSyncFolderTreeChanged(bool value)
     {

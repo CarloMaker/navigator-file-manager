@@ -207,6 +207,8 @@ S = {
 "GestureBookmark": ("Ctrl+D", "Ctrl+D", "Strg+D", "Ctrl+D", "Ctrl+D"),
 "GestureSelectAll": ("Ctrl+A", "Ctrl+A", "Strg+A", "Ctrl+A", "Ctrl+E"),
 "SyncFolderTree": ("Mostra nell'albero la cartella aperta", "Show the open folder in the tree", "Geöffneten Ordner in der Struktur anzeigen", "Afficher le dossier ouvert dans l'arborescence", "Mostrar la carpeta abierta en el árbol"),
+"ShowDriveBar": ("Mostra la barra delle unità", "Show the drive bar", "Laufwerksleiste anzeigen", "Afficher la barre des lecteurs", "Mostrar la barra de unidades"),
+"DriveButtonHint": ("Ctrl+clic: apri in una nuova scheda", "Ctrl+click: open in a new tab", "Strg+Klick: in neuer Registerkarte öffnen", "Ctrl+clic : ouvrir dans un nouvel onglet", "Ctrl+clic: abrir en una pestaña nueva"),
 "ShowGitStatus": ("Mostra lo stato Git sulle icone", "Show Git status on icons", "Git-Status auf Symbolen anzeigen", "Afficher l'état Git sur les icônes", "Mostrar el estado de Git en los iconos"),
 "ShowFolderSizes": ("Calcola la dimensione delle cartelle", "Calculate folder sizes", "Ordnergrößen berechnen", "Calculer la taille des dossiers", "Calcular el tamaño de las carpetas"),
 "GitNormal": ("Git: aggiornato", "Git: up to date", "Git: aktuell", "Git : à jour", "Git: actualizado"),

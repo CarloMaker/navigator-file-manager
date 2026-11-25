@@ -238,3 +238,49 @@ public sealed class DriveItemViewModel
         ? Strings.Format(Strings.FreeOfTotal, PathHelper.FormatSize(Drive.FreeSpace), PathHelper.FormatSize(Drive.TotalSize))
         : Drive.IsReady ? string.Empty : Strings.DriveNotReady;
 }
+
+/// <summary>
+/// Un pulsante della barra delle unità sopra l'albero delle cartelle (come in CubicExplorer):
+/// icona e lettera dell'unità, evidenziato quando la scheda attiva è su quell'unità.
+/// </summary>
+public sealed partial class DriveButtonViewModel : ObservableObject
+{
+    public DriveButtonViewModel(DriveEntry drive)
+    {
+        Drive = new DriveItemViewModel(drive);
+    }
+
+    /// <summary>Usato anche per l'icona (stesso convertitore delle tessere di "Questo PC").</summary>
+    public DriveItemViewModel Drive { get; }
+
+    public string RootPath => Drive.RootPath;
+
+    /// <summary>"C" per "C:\".</summary>
+    public string Letter => RootPath.TrimEnd('\\', '/').TrimEnd(':');
+
+    /// <summary>"Disco locale (C:)", lo spazio libero e il suggerimento per Ctrl+clic.</summary>
+    public string ToolTip
+    {
+        get
+        {
+            var lines = new List<string> { Drive.Name };
+            if (!string.IsNullOrEmpty(Drive.SpaceText))
+            {
+                lines.Add(Drive.SpaceText);
+            }
+
+            lines.Add(Strings.DriveButtonHint);
+            return string.Join(Environment.NewLine, lines);
+        }
+    }
+
+    /// <summary>La scheda attiva mostra una cartella di questa unità.</summary>
+    [ObservableProperty]
+    private bool _isCurrent;
+
+    /// <summary>true se <paramref name="path"/> sta su questa unità.</summary>
+    public bool Contains(string? path) =>
+        !string.IsNullOrEmpty(path)
+        && path.StartsWith(RootPath.TrimEnd('\\'), StringComparison.OrdinalIgnoreCase)
+        && (path.Length == RootPath.TrimEnd('\\').Length || path[RootPath.TrimEnd('\\').Length] is '\\' or '/');
+}

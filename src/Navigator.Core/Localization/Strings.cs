@@ -136,6 +136,9 @@ public static class Strings
     /// <summary>Trascina per spostare il pannello</summary>
     public static string DragToMovePanel => Get(nameof(DragToMovePanel));
 
+    /// <summary>Ctrl+clic: apri in una nuova scheda</summary>
+    public static string DriveButtonHint => Get(nameof(DriveButtonHint));
+
     /// <summary>Unità non pronta</summary>
     public static string DriveNotReady => Get(nameof(DriveNotReady));
 
@@ -579,6 +582,9 @@ public static class Strings
 
     /// <summary>{0} schede</summary>
     public static string SessionTabs => Get(nameof(SessionTabs));
+
+    /// <summary>Mostra la barra delle unità</summary>
+    public static string ShowDriveBar => Get(nameof(ShowDriveBar));
 
     /// <summary>Calcola la dimensione delle cartelle</summary>
     public static string ShowFolderSizes => Get(nameof(ShowFolderSizes));

@@ -43,6 +43,7 @@
   <data name="DeleteTip" xml:space="preserve"><value>Löschen (Entf)</value></data>
   <data name="DevicesAndDrives" xml:space="preserve"><value>Geräte und Laufwerke</value></data>
   <data name="DragToMovePanel" xml:space="preserve"><value>Ziehen, um den Bereich zu verschieben</value></data>
+  <data name="DriveButtonHint" xml:space="preserve"><value>Strg+Klick: in neuer Registerkarte öffnen</value></data>
   <data name="DriveNotReady" xml:space="preserve"><value>Laufwerk nicht bereit</value></data>
   <data name="DropPanelHere" xml:space="preserve"><value>Bereich hier ablegen</value></data>
   <data name="DropStackClearTip" xml:space="preserve"><value>Drop Stack leeren</value></data>
@@ -197,6 +198,7 @@ Ihre Version trotzdem speichern?</value></data>
   <data name="SessionNamePrompt" xml:space="preserve"><value>Name der Sitzung:</value></data>
   <data name="SessionReplaceConfirm" xml:space="preserve"><value>Eine Sitzung "{0}" ist bereits vorhanden. Ersetzen?</value></data>
   <data name="SessionTabs" xml:space="preserve"><value>{0} Registerkarten</value></data>
+  <data name="ShowDriveBar" xml:space="preserve"><value>Laufwerksleiste anzeigen</value></data>
   <data name="ShowFolderSizes" xml:space="preserve"><value>Ordnergrößen berechnen</value></data>
   <data name="ShowGitStatus" xml:space="preserve"><value>Git-Status auf Symbolen anzeigen</value></data>
   <data name="SizeBytes" xml:space="preserve"><value>{0} Byte</value></data>

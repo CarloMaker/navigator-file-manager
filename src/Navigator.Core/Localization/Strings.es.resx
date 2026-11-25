@@ -43,6 +43,7 @@
   <data name="DeleteTip" xml:space="preserve"><value>Eliminar (Supr)</value></data>
   <data name="DevicesAndDrives" xml:space="preserve"><value>Dispositivos y unidades</value></data>
   <data name="DragToMovePanel" xml:space="preserve"><value>Arrastra para mover el panel</value></data>
+  <data name="DriveButtonHint" xml:space="preserve"><value>Ctrl+clic: abrir en una pestaña nueva</value></data>
   <data name="DriveNotReady" xml:space="preserve"><value>Unidad no preparada</value></data>
   <data name="DropPanelHere" xml:space="preserve"><value>Suelta aquí el panel</value></data>
   <data name="DropStackClearTip" xml:space="preserve"><value>Vaciar el Drop Stack</value></data>
@@ -197,6 +198,7 @@
   <data name="SessionNamePrompt" xml:space="preserve"><value>Nombre de la sesión:</value></data>
   <data name="SessionReplaceConfirm" xml:space="preserve"><value>Ya existe una sesión "{0}". ¿Quieres reemplazarla?</value></data>
   <data name="SessionTabs" xml:space="preserve"><value>{0} pestañas</value></data>
+  <data name="ShowDriveBar" xml:space="preserve"><value>Mostrar la barra de unidades</value></data>
   <data name="ShowFolderSizes" xml:space="preserve"><value>Calcular el tamaño de las carpetas</value></data>
   <data name="ShowGitStatus" xml:space="preserve"><value>Mostrar el estado de Git en los iconos</value></data>
   <data name="SizeBytes" xml:space="preserve"><value>{0} bytes</value></data>

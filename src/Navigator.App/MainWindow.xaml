@@ -124,6 +124,37 @@
             </Setter>
         </Style>
 
+        <!-- Pulsante della barra delle unità sopra l'albero delle cartelle -->
+        <Style x:Key="Nav.DriveButton" TargetType="Button">
+            <Setter Property="Foreground" Value="{DynamicResource Nav.Text}" />
+            <Setter Property="FontFamily" Value="{StaticResource Nav.UiFont}" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Focusable" Value="False" />
+            <Setter Property="Cursor" Value="Arrow" />
+            <Setter Property="Margin" Value="0,0,2,2" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="Transparent" BorderBrush="Transparent" BorderThickness="1" CornerRadius="4" Padding="5,2,7,2">
+                            <ContentPresenter VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <DataTrigger Binding="{Binding IsCurrent}" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Nav.ItemSelected}" />
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Nav.ItemSelectedBorder}" />
+                            </DataTrigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Nav.ButtonHover}" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Nav.ButtonPressed}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <Style x:Key="Nav.DriveTile" TargetType="ListBoxItem">
             <Setter Property="Foreground" Value="{DynamicResource Nav.Text}" />
             <Setter Property="FocusVisualStyle" Value="{x:Null}" />
@@ -212,7 +243,6 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="40" />
                 <RowDefinition Height="48" />
-                <RowDefinition Height="44" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="28" />
             </Grid.RowDefinitions>
@@ -270,7 +300,7 @@
                 </StackPanel>
             </DockPanel>
 
-            <!-- ===================== Riga 1: navigazione, indirizzo e ricerca ===================== -->
+            <!-- ===================== Riga 1: indirizzo e ricerca ===================== -->
             <Grid Grid.Row="1" Background="{DynamicResource Nav.Toolbar}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -278,15 +308,9 @@
                     <ColumnDefinition Width="280" />
                 </Grid.ColumnDefinitions>
 
-                <StackPanel Orientation="Horizontal" Margin="8,0,4,0" VerticalAlignment="Center">
-                    <Button Style="{StaticResource Nav.IconButton}" Content="&#xE72B;" ToolTip="{x:Static loc:Strings.BackTip}" Command="{Binding SelectedTab.GoBackCommand}" />
-                    <Button Style="{StaticResource Nav.IconButton}" Content="&#xE72A;" ToolTip="{x:Static loc:Strings.ForwardTip}" Command="{Binding SelectedTab.GoForwardCommand}" />
-                    <Button Style="{StaticResource Nav.IconButton}" Content="&#xE74A;" ToolTip="{x:Static loc:Strings.UpTip}" Command="{Binding SelectedTab.GoUpCommand}" />
-                    <Button Style="{StaticResource Nav.IconButton}" Content="&#xE72C;" ToolTip="{x:Static loc:Strings.RefreshTip}" Command="{Binding SelectedTab.RefreshCommand}" />
-                </StackPanel>
 
                 <!-- Barra indirizzi: breadcrumb, oppure testo modificabile (clic sullo spazio vuoto o Ctrl+L) -->
-                <Border Grid.Column="1" Style="{StaticResource Nav.InputBox}" Margin="4,0,8,0">
+                <Border Grid.Column="1" Style="{StaticResource Nav.InputBox}" Margin="8,0,8,0">
                     <Grid>
                         <DockPanel Visibility="{Binding IsEditingAddress, Converter={StaticResource InverseBoolToVisibility}}" LastChildFill="True">
                             <Image DockPanel.Dock="Left" Width="16" Height="16" Margin="10,0,2,0"
@@ -354,105 +378,8 @@
                 </Border>
             </Grid>
 
-            <!-- ===================== Riga 2: barra dei comandi ===================== -->
-            <Border Grid.Row="2" Background="{DynamicResource Nav.Toolbar}" BorderBrush="{DynamicResource Nav.Divider}" BorderThickness="0,0,0,1">
-                <StackPanel Orientation="Horizontal" Margin="8,0" VerticalAlignment="Center">
-                    <Button Style="{StaticResource Nav.CommandButton}" Command="{Binding NewFolderCommand}" ToolTip="{x:Static loc:Strings.NewFolderTip}">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Style="{StaticResource Nav.Glyph}" Text="&#xE8F4;" />
-                            <TextBlock Text="{x:Static loc:Strings.NewFolder}" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
-                    <Rectangle Width="1" Height="24" Margin="6,0" Fill="{DynamicResource Nav.Divider}" />
-                    <Button Style="{StaticResource Nav.IconButton}" Content="&#xE8C6;" ToolTip="{x:Static loc:Strings.CutTip}" Command="{Binding CutCommand}" />
-                    <Button Style="{StaticResource Nav.IconButton}" Content="&#xE8C8;" ToolTip="{x:Static loc:Strings.CopyTip}" Command="{Binding CopyCommand}" />
-                    <Button Style="{StaticResource Nav.IconButton}" Content="&#xE77F;" ToolTip="{x:Static loc:Strings.PasteTip}" Command="{Binding PasteCommand}" />
-                    <Button Style="{StaticResource Nav.IconButton}" Content="&#xE8AC;" ToolTip="{x:Static loc:Strings.RenameTip}" Command="{Binding RenameCommand}" />
-                    <Button Style="{StaticResource Nav.IconButton}" Content="&#xE74D;" ToolTip="{x:Static loc:Strings.DeleteTip}" Command="{Binding DeleteCommand}" />
-                    <Rectangle Width="1" Height="24" Margin="6,0" Fill="{DynamicResource Nav.Divider}" />
-                    <Button Style="{StaticResource Nav.CommandButton}" Command="{Binding AddBookmarkCommand}" ToolTip="{x:Static loc:Strings.BookmarkFolderTip}">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Style="{StaticResource Nav.Glyph}" Text="&#xE734;" />
-                            <TextBlock Text="{x:Static loc:Strings.Bookmark}" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
-                    <Button Style="{StaticResource Nav.CommandButton}" Command="{Binding SaveSessionCommand}" ToolTip="{x:Static loc:Strings.SaveSessionTip}">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Style="{StaticResource Nav.Glyph}" Text="&#xE74E;" />
-                            <TextBlock Text="{x:Static loc:Strings.SaveSession}" VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
-                    <Rectangle Width="1" Height="24" Margin="6,0" Fill="{DynamicResource Nav.Divider}" />
-
-                    <Button x:Name="ViewButton" Style="{StaticResource Nav.CommandButton}" Click="OnDropDownButtonClick" ToolTip="{x:Static loc:Strings.ViewOptionsTip}">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Style="{StaticResource Nav.Glyph}" Text="&#xE890;" />
-                            <TextBlock Text="{x:Static loc:Strings.View}" VerticalAlignment="Center" />
-                            <TextBlock Text="&#xE70D;" FontFamily="{StaticResource Nav.IconFont}" FontSize="9" Margin="8,2,0,0" VerticalAlignment="Center" />
-                        </StackPanel>
-                        <Button.ContextMenu>
-                            <ContextMenu>
-                                <MenuItem x:Name="ViewDetailsItem" Header="{x:Static loc:Strings.ViewDetails}" InputGestureText="{x:Static loc:Strings.GestureViewDetails}"
-                                          Command="{Binding SetViewModeCommand}" CommandParameter="{x:Static models:FileViewMode.Details}" />
-                                <MenuItem x:Name="ViewMediumItem" Header="{x:Static loc:Strings.ViewMediumIcons}" InputGestureText="{x:Static loc:Strings.GestureViewMedium}"
-                                          Command="{Binding SetViewModeCommand}" CommandParameter="{x:Static models:FileViewMode.MediumIcons}" />
-                                <MenuItem x:Name="ViewLargeItem" Header="{x:Static loc:Strings.ViewLargeIcons}" InputGestureText="{x:Static loc:Strings.GestureViewLarge}"
-                                          Command="{Binding SetViewModeCommand}" CommandParameter="{x:Static models:FileViewMode.LargeIcons}" />
-                                <Separator />
-                                <MenuItem Header="{x:Static loc:Strings.HiddenItems}" IsCheckable="True" IsChecked="{Binding ShowHidden, Mode=TwoWay}" />
-                                <Separator />
-                                <MenuItem Header="{x:Static loc:Strings.Panels}" IsEnabled="False" />
-                                <MenuItem Header="{x:Static loc:Strings.PanelBookmarks}" IsCheckable="True" IsChecked="{Binding Layout.Bookmarks.IsVisible, Mode=TwoWay}" />
-                                <MenuItem Header="{x:Static loc:Strings.PanelSessions}" IsCheckable="True" IsChecked="{Binding Layout.Sessions.IsVisible, Mode=TwoWay}" />
-                                <MenuItem Header="{x:Static loc:Strings.PanelFolders}" IsCheckable="True" IsChecked="{Binding Layout.FolderTree.IsVisible, Mode=TwoWay}" />
-                                <MenuItem Header="{x:Static loc:Strings.PanelQuickView}" IsCheckable="True" IsChecked="{Binding Layout.QuickView.IsVisible, Mode=TwoWay}" />
-                                <MenuItem Header="{x:Static loc:Strings.PanelFilters}" IsCheckable="True" IsChecked="{Binding Layout.Filters.IsVisible, Mode=TwoWay}" />
-                                <MenuItem Header="{x:Static loc:Strings.PanelDropStack}" IsCheckable="True" IsChecked="{Binding Layout.DropStack.IsVisible, Mode=TwoWay}" />
-                                <MenuItem Header="{x:Static loc:Strings.ResetPanels}" Command="{Binding Layout.ResetCommand}" />
-                                <Separator />
-                                <MenuItem Header="{x:Static loc:Strings.ReopenTabs}" IsCheckable="True" IsChecked="{Binding RestoreLastSession, Mode=TwoWay}" />
-                                <MenuItem Header="{x:Static loc:Strings.SyncFolderTree}" IsCheckable="True" IsChecked="{Binding SyncFolderTree, Mode=TwoWay}" />
-                                <MenuItem Header="{x:Static loc:Strings.ShowGitStatus}" IsCheckable="True" IsChecked="{Binding ShowGitStatus, Mode=TwoWay}" />
-                                <MenuItem Header="{x:Static loc:Strings.ShowFolderSizes}" IsCheckable="True" IsChecked="{Binding ShowFolderSizes, Mode=TwoWay}" />
-                                <MenuItem Header="{x:Static loc:Strings.RefreshTree}" Command="{Binding BuildTreeCommand}" />
-                            </ContextMenu>
-                        </Button.ContextMenu>
-                    </Button>
-
-                    <Button x:Name="MoreButton" Style="{StaticResource Nav.IconButton}" Content="&#xE712;" ToolTip="{x:Static loc:Strings.MoreOptions}" Click="OnDropDownButtonClick">
-                        <Button.ContextMenu>
-                            <ContextMenu>
-                                <MenuItem Header="{x:Static loc:Strings.SelectAll}" InputGestureText="{x:Static loc:Strings.GestureSelectAll}" Click="OnSelectAllClick" />
-                                <MenuItem Header="{x:Static loc:Strings.CopyPath}" InputGestureText="{x:Static loc:Strings.GestureCopyPath}" Command="{Binding CopyPathCommand}" />
-                                <Separator />
-                                <MenuItem Header="{x:Static loc:Strings.OpenInNewTab}" Command="{Binding OpenInNewTabCommand}" />
-                                <MenuItem Header="{x:Static loc:Strings.OpenFileLocation}" Command="{Binding OpenContainingFolderCommand}" />
-                                <MenuItem Header="{x:Static loc:Strings.EditWithEditor}" InputGestureText="F4" Command="{Binding EditFileCommand}" />
-                                <MenuItem Header="{x:Static loc:Strings.AddToBookmarks}" Command="{Binding AddSelectionToBookmarksCommand}" />
-                                <MenuItem Header="{x:Static loc:Strings.AddToDropStack}" Command="{Binding AddSelectionToDropStackCommand}" />
-                                <MenuItem Header="{x:Static loc:Strings.DeletePermanently}" InputGestureText="{x:Static loc:Strings.GestureDeletePermanently}" Command="{Binding DeletePermanentlyCommand}" />
-                                <Separator />
-                                <MenuItem Header="{x:Static loc:Strings.Properties}" InputGestureText="{x:Static loc:Strings.GestureProperties}" Command="{Binding PropertiesCommand}" />
-                                <Separator />
-                                <MenuItem x:Name="LanguageMenu" Header="{x:Static loc:Strings.Language}" SubmenuOpened="OnLanguageMenuOpened">
-                                    <MenuItem Tag="" Header="{x:Static loc:Strings.LanguageSystem}" Click="OnLanguageClick" />
-                                    <Separator />
-                                    <MenuItem Tag="it" Header="Italiano" Click="OnLanguageClick" />
-                                    <MenuItem Tag="en" Header="English" Click="OnLanguageClick" />
-                                    <MenuItem Tag="de" Header="Deutsch" Click="OnLanguageClick" />
-                                    <MenuItem Tag="fr" Header="Français" Click="OnLanguageClick" />
-                                    <MenuItem Tag="es" Header="Español" Click="OnLanguageClick" />
-                                </MenuItem>
-                                <MenuItem Header="{x:Static loc:Strings.OpenDataFolder}" Click="OnOpenDataFolderClick" />
-                                <MenuItem Header="{x:Static loc:Strings.AboutTitle}" Click="OnAboutClick" />
-                            </ContextMenu>
-                        </Button.ContextMenu>
-                    </Button>
-                </StackPanel>
-            </Border>
-
-            <!-- ===================== Riga 3: pannelli e lista file ===================== -->
-            <Grid Grid.Row="3" Background="{DynamicResource Nav.Content}">
+            <!-- ===================== Riga 2: pannelli e lista file ===================== -->
+            <Grid Grid.Row="2" Background="{DynamicResource Nav.Content}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition x:Name="LeftColumn" Width="240" />
                     <ColumnDefinition Width="Auto" />
@@ -476,7 +403,112 @@
                         <RowDefinition x:Name="BottomRow" Height="0" />
                     </Grid.RowDefinitions>
 
-                <Grid Grid.Row="0">
+                <!-- Barra degli strumenti della lista: navigazione e comandi, come in CubicExplorer.
+                     Se la colonna è stretta i pulsanti vanno a capo. -->
+                <DockPanel Grid.Row="0">
+                <Border DockPanel.Dock="Top" Background="{DynamicResource Nav.Toolbar}" BorderBrush="{DynamicResource Nav.Divider}" BorderThickness="0,0,0,1"
+                        MinHeight="44" Padding="8,4">
+                    <WrapPanel VerticalAlignment="Center">
+                            <Button Style="{StaticResource Nav.IconButton}" Content="&#xE72B;" ToolTip="{x:Static loc:Strings.BackTip}" Command="{Binding SelectedTab.GoBackCommand}" />
+                            <Button Style="{StaticResource Nav.IconButton}" Content="&#xE72A;" ToolTip="{x:Static loc:Strings.ForwardTip}" Command="{Binding SelectedTab.GoForwardCommand}" />
+                            <Button Style="{StaticResource Nav.IconButton}" Content="&#xE74A;" ToolTip="{x:Static loc:Strings.UpTip}" Command="{Binding SelectedTab.GoUpCommand}" />
+                            <Button Style="{StaticResource Nav.IconButton}" Content="&#xE72C;" ToolTip="{x:Static loc:Strings.RefreshTip}" Command="{Binding SelectedTab.RefreshCommand}" />
+                            <Rectangle Width="1" Height="24" Margin="6,0" VerticalAlignment="Center" Fill="{DynamicResource Nav.Divider}" />
+                            <Button Style="{StaticResource Nav.CommandButton}" Command="{Binding NewFolderCommand}" ToolTip="{x:Static loc:Strings.NewFolderTip}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource Nav.Glyph}" Text="&#xE8F4;" />
+                                    <TextBlock Text="{x:Static loc:Strings.NewFolder}" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Button>
+                            <Rectangle Width="1" Height="24" Margin="6,0" VerticalAlignment="Center" Fill="{DynamicResource Nav.Divider}" />
+                            <Button Style="{StaticResource Nav.IconButton}" Content="&#xE8C6;" ToolTip="{x:Static loc:Strings.CutTip}" Command="{Binding CutCommand}" />
+                            <Button Style="{StaticResource Nav.IconButton}" Content="&#xE8C8;" ToolTip="{x:Static loc:Strings.CopyTip}" Command="{Binding CopyCommand}" />
+                            <Button Style="{StaticResource Nav.IconButton}" Content="&#xE77F;" ToolTip="{x:Static loc:Strings.PasteTip}" Command="{Binding PasteCommand}" />
+                            <Button Style="{StaticResource Nav.IconButton}" Content="&#xE8AC;" ToolTip="{x:Static loc:Strings.RenameTip}" Command="{Binding RenameCommand}" />
+                            <Button Style="{StaticResource Nav.IconButton}" Content="&#xE74D;" ToolTip="{x:Static loc:Strings.DeleteTip}" Command="{Binding DeleteCommand}" />
+                            <Rectangle Width="1" Height="24" Margin="6,0" VerticalAlignment="Center" Fill="{DynamicResource Nav.Divider}" />
+                            <Button Style="{StaticResource Nav.CommandButton}" Command="{Binding AddBookmarkCommand}" ToolTip="{x:Static loc:Strings.BookmarkFolderTip}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource Nav.Glyph}" Text="&#xE734;" />
+                                    <TextBlock Text="{x:Static loc:Strings.Bookmark}" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Button>
+                            <Button Style="{StaticResource Nav.CommandButton}" Command="{Binding SaveSessionCommand}" ToolTip="{x:Static loc:Strings.SaveSessionTip}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource Nav.Glyph}" Text="&#xE74E;" />
+                                    <TextBlock Text="{x:Static loc:Strings.SaveSession}" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Button>
+                            <Rectangle Width="1" Height="24" Margin="6,0" VerticalAlignment="Center" Fill="{DynamicResource Nav.Divider}" />
+
+                            <Button x:Name="ViewButton" Style="{StaticResource Nav.CommandButton}" Click="OnDropDownButtonClick" ToolTip="{x:Static loc:Strings.ViewOptionsTip}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource Nav.Glyph}" Text="&#xE890;" />
+                                    <TextBlock Text="{x:Static loc:Strings.View}" VerticalAlignment="Center" />
+                                    <TextBlock Text="&#xE70D;" FontFamily="{StaticResource Nav.IconFont}" FontSize="9" Margin="8,2,0,0" VerticalAlignment="Center" />
+                                </StackPanel>
+                                <Button.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem x:Name="ViewDetailsItem" Header="{x:Static loc:Strings.ViewDetails}" InputGestureText="{x:Static loc:Strings.GestureViewDetails}"
+                                                  Command="{Binding SetViewModeCommand}" CommandParameter="{x:Static models:FileViewMode.Details}" />
+                                        <MenuItem x:Name="ViewMediumItem" Header="{x:Static loc:Strings.ViewMediumIcons}" InputGestureText="{x:Static loc:Strings.GestureViewMedium}"
+                                                  Command="{Binding SetViewModeCommand}" CommandParameter="{x:Static models:FileViewMode.MediumIcons}" />
+                                        <MenuItem x:Name="ViewLargeItem" Header="{x:Static loc:Strings.ViewLargeIcons}" InputGestureText="{x:Static loc:Strings.GestureViewLarge}"
+                                                  Command="{Binding SetViewModeCommand}" CommandParameter="{x:Static models:FileViewMode.LargeIcons}" />
+                                        <Separator />
+                                        <MenuItem Header="{x:Static loc:Strings.HiddenItems}" IsCheckable="True" IsChecked="{Binding ShowHidden, Mode=TwoWay}" />
+                                        <Separator />
+                                        <MenuItem Header="{x:Static loc:Strings.Panels}" IsEnabled="False" />
+                                        <MenuItem Header="{x:Static loc:Strings.PanelBookmarks}" IsCheckable="True" IsChecked="{Binding Layout.Bookmarks.IsVisible, Mode=TwoWay}" />
+                                        <MenuItem Header="{x:Static loc:Strings.PanelSessions}" IsCheckable="True" IsChecked="{Binding Layout.Sessions.IsVisible, Mode=TwoWay}" />
+                                        <MenuItem Header="{x:Static loc:Strings.PanelFolders}" IsCheckable="True" IsChecked="{Binding Layout.FolderTree.IsVisible, Mode=TwoWay}" />
+                                        <MenuItem Header="{x:Static loc:Strings.PanelQuickView}" IsCheckable="True" IsChecked="{Binding Layout.QuickView.IsVisible, Mode=TwoWay}" />
+                                        <MenuItem Header="{x:Static loc:Strings.PanelFilters}" IsCheckable="True" IsChecked="{Binding Layout.Filters.IsVisible, Mode=TwoWay}" />
+                                        <MenuItem Header="{x:Static loc:Strings.PanelDropStack}" IsCheckable="True" IsChecked="{Binding Layout.DropStack.IsVisible, Mode=TwoWay}" />
+                                        <MenuItem Header="{x:Static loc:Strings.ResetPanels}" Command="{Binding Layout.ResetCommand}" />
+                                        <Separator />
+                                        <MenuItem Header="{x:Static loc:Strings.ReopenTabs}" IsCheckable="True" IsChecked="{Binding RestoreLastSession, Mode=TwoWay}" />
+                                        <MenuItem Header="{x:Static loc:Strings.SyncFolderTree}" IsCheckable="True" IsChecked="{Binding SyncFolderTree, Mode=TwoWay}" />
+                                        <MenuItem Header="{x:Static loc:Strings.ShowDriveBar}" IsCheckable="True" IsChecked="{Binding ShowDriveBar, Mode=TwoWay}" />
+                                        <MenuItem Header="{x:Static loc:Strings.ShowGitStatus}" IsCheckable="True" IsChecked="{Binding ShowGitStatus, Mode=TwoWay}" />
+                                        <MenuItem Header="{x:Static loc:Strings.ShowFolderSizes}" IsCheckable="True" IsChecked="{Binding ShowFolderSizes, Mode=TwoWay}" />
+                                        <MenuItem Header="{x:Static loc:Strings.RefreshTree}" Command="{Binding BuildTreeCommand}" />
+                                    </ContextMenu>
+                                </Button.ContextMenu>
+                            </Button>
+
+                            <Button x:Name="MoreButton" Style="{StaticResource Nav.IconButton}" Content="&#xE712;" ToolTip="{x:Static loc:Strings.MoreOptions}" Click="OnDropDownButtonClick">
+                                <Button.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="{x:Static loc:Strings.SelectAll}" InputGestureText="{x:Static loc:Strings.GestureSelectAll}" Click="OnSelectAllClick" />
+                                        <MenuItem Header="{x:Static loc:Strings.CopyPath}" InputGestureText="{x:Static loc:Strings.GestureCopyPath}" Command="{Binding CopyPathCommand}" />
+                                        <Separator />
+                                        <MenuItem Header="{x:Static loc:Strings.OpenInNewTab}" Command="{Binding OpenInNewTabCommand}" />
+                                        <MenuItem Header="{x:Static loc:Strings.OpenFileLocation}" Command="{Binding OpenContainingFolderCommand}" />
+                                        <MenuItem Header="{x:Static loc:Strings.EditWithEditor}" InputGestureText="F4" Command="{Binding EditFileCommand}" />
+                                        <MenuItem Header="{x:Static loc:Strings.AddToBookmarks}" Command="{Binding AddSelectionToBookmarksCommand}" />
+                                        <MenuItem Header="{x:Static loc:Strings.AddToDropStack}" Command="{Binding AddSelectionToDropStackCommand}" />
+                                        <MenuItem Header="{x:Static loc:Strings.DeletePermanently}" InputGestureText="{x:Static loc:Strings.GestureDeletePermanently}" Command="{Binding DeletePermanentlyCommand}" />
+                                        <Separator />
+                                        <MenuItem Header="{x:Static loc:Strings.Properties}" InputGestureText="{x:Static loc:Strings.GestureProperties}" Command="{Binding PropertiesCommand}" />
+                                        <Separator />
+                                        <MenuItem x:Name="LanguageMenu" Header="{x:Static loc:Strings.Language}" SubmenuOpened="OnLanguageMenuOpened">
+                                            <MenuItem Tag="" Header="{x:Static loc:Strings.LanguageSystem}" Click="OnLanguageClick" />
+                                            <Separator />
+                                            <MenuItem Tag="it" Header="Italiano" Click="OnLanguageClick" />
+                                            <MenuItem Tag="en" Header="English" Click="OnLanguageClick" />
+                                            <MenuItem Tag="de" Header="Deutsch" Click="OnLanguageClick" />
+                                            <MenuItem Tag="fr" Header="Français" Click="OnLanguageClick" />
+                                            <MenuItem Tag="es" Header="Español" Click="OnLanguageClick" />
+                                        </MenuItem>
+                                        <MenuItem Header="{x:Static loc:Strings.OpenDataFolder}" Click="OnOpenDataFolderClick" />
+                                        <MenuItem Header="{x:Static loc:Strings.AboutTitle}" Click="OnAboutClick" />
+                                    </ContextMenu>
+                                </Button.ContextMenu>
+                            </Button>
+                    </WrapPanel>
+                </Border>
+                <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
@@ -633,6 +665,7 @@
                                  Foreground="{DynamicResource Nav.Accent}" Background="Transparent" BorderThickness="0"
                                  Visibility="{Binding SelectedTab.IsLoading, Converter={StaticResource BoolToVisibility}}" />
                 </Grid>
+                </DockPanel>
 
                     <GridSplitter x:Name="BottomSplitter" Grid.Row="1" Height="5" HorizontalAlignment="Stretch" VerticalAlignment="Center"
                                   ResizeDirection="Rows" ResizeBehavior="PreviousAndNext" Background="Transparent" Visibility="Collapsed" />
@@ -653,7 +686,7 @@
 
             <!-- ===================== Pannelli ===================== -->
             <!-- Deposito dei pannelli: quelli visibili vengono spostati nei due lati, quelli nascosti restano qui. -->
-            <Grid x:Name="PanelStore" Grid.Row="3" Visibility="Collapsed">
+            <Grid x:Name="PanelStore" Grid.Row="2" Visibility="Collapsed">
 
             <!-- Segnalibri: cartelle e file; si riordinano trascinandoli e si aggiungono trascinando file o cartelle -->
             <DockPanel x:Name="BookmarksPanel" Tag="Bookmarks">
@@ -804,6 +837,28 @@
                     </StackPanel>
                     <TextBlock Style="{StaticResource Nav.SectionHeader}" Text="{x:Static loc:Strings.PanelFolders}" />
                 </DockPanel>
+                <!-- Barra delle unità, come in CubicExplorer: clic = apri, Ctrl+clic o clic centrale = nuova scheda, clic destro = menu di Windows -->
+                <Border DockPanel.Dock="Top" BorderBrush="{DynamicResource Nav.Divider}" BorderThickness="0,0,0,1" Margin="6,0,6,2" Padding="0,0,0,3"
+                        Visibility="{Binding ShowDriveBar, Converter={StaticResource BoolToVisibility}}">
+                    <ItemsControl ItemsSource="{Binding DriveButtons}" Focusable="False">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type vm:DriveButtonViewModel}">
+                                <Button Style="{StaticResource Nav.DriveButton}" ToolTip="{Binding ToolTip}"
+                                        Click="OnDriveButtonClick" MouseUp="OnDriveButtonMouseUp" MouseRightButtonUp="OnDriveButtonRightClick">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Width="16" Height="16" Margin="0,0,4,0" Source="{Binding Drive, Converter={StaticResource Icon}}" />
+                                        <TextBlock Text="{Binding Letter}" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Border>
                 <TreeView x:Name="FolderTree" ItemsSource="{Binding TreeRoots}" ctl:CompactRows.Auto="True"
                           Background="Transparent" BorderThickness="0" Padding="0,0,0,8"
                           Foreground="{DynamicResource Nav.Text}"
@@ -1061,8 +1116,8 @@
             </Grid>
 
 
-            <!-- ===================== Riga 4: barra di stato ===================== -->
-            <DockPanel Grid.Row="4" Background="{DynamicResource Nav.Content}">
+            <!-- ===================== Riga 3: barra di stato ===================== -->
+            <DockPanel Grid.Row="3" Background="{DynamicResource Nav.Content}">
                 <TextBlock DockPanel.Dock="Right" Margin="12,0" VerticalAlignment="Center" Foreground="{DynamicResource Nav.TextSecondary}"
                            Text="{Binding FreeSpaceText}" />
                 <TextBlock DockPanel.Dock="Right" Margin="12,0" VerticalAlignment="Center" Foreground="{DynamicResource Nav.TextSecondary}"

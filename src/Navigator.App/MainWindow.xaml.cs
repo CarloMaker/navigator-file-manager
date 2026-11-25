@@ -285,6 +285,37 @@ public partial class MainWindow : Window, IQuickViewEditorHost
         e.Handled = true;
     }
 
+    // ---- Barra delle unità sopra l'albero -----------------------------------------------------
+
+    private void OnDriveButtonClick(object sender, RoutedEventArgs e)
+    {
+        if (sender is FrameworkElement { DataContext: DriveButtonViewModel drive })
+        {
+            OpenDrive(drive.Drive);
+        }
+    }
+
+    /// <summary>Clic centrale: l'unità si apre in una nuova scheda, come con Ctrl+clic.</summary>
+    private void OnDriveButtonMouseUp(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ChangedButton == MouseButton.Middle && sender is FrameworkElement { DataContext: DriveButtonViewModel drive })
+        {
+            _ = _vm.OpenTabAsync(drive.RootPath);
+            e.Handled = true;
+        }
+    }
+
+    /// <summary>Clic destro: il menu di Windows dell'unità (Apri, Espelli, Proprietà...).</summary>
+    private void OnDriveButtonRightClick(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is FrameworkElement { DataContext: DriveButtonViewModel drive })
+        {
+            var point = PointToScreen(e.GetPosition(this));
+            _shell.ShowContextMenu(new WindowInteropHelper(this).Handle, [drive.RootPath], (int)point.X, (int)point.Y);
+            e.Handled = true;
+        }
+    }
+
     private void OpenDrive(DriveItemViewModel drive)
     {
         // Ctrl+doppio clic apre l'unità in una nuova scheda.
@@ -1614,6 +1645,13 @@ public partial class MainWindow : Window, IQuickViewEditorHost
         menu.Items.Add(CreateMenuItem(sideBySide ? Strings.MoveLater : Strings.MoveDown, () => layout.MoveDown(panel), layout.CanMoveDown(panel)));
         menu.Items.Add(new Separator());
         menu.Items.Add(CreateMenuItem(Strings.HidePanel, () => layout.Hide(panel)));
+        if (panel.Id == PanelId.FolderTree)
+        {
+            var driveBar = new MenuItem { Header = Strings.ShowDriveBar, IsCheckable = true, IsChecked = _vm.ShowDriveBar };
+            driveBar.Click += (_, _) => _vm.ShowDriveBar = driveBar.IsChecked;
+            menu.Items.Add(driveBar);
+        }
+
         menu.Items.Add(new Separator());
         menu.Items.Add(CreateMenuItem(Strings.ResetPanels, layout.Reset));
         menu.IsOpen = true;

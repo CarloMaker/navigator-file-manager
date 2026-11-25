@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.2 — 2026-11-25
+
+- Drive bar above the Folders panel, like CubicExplorer: one button per drive (icon and letter). Click opens the
+  drive, Ctrl+click or middle click opens it in a new tab, right click shows the Windows menu. The tooltip shows
+  the drive name and free space; the drive of the active tab is highlighted. It follows drives being plugged in
+  or removed and can be hidden from More options or from the Folders panel menu.
+- The toolbar (back, forward, up, refresh and the command buttons) now sits above the file list instead of
+  spanning the whole window, like CubicExplorer; panels on the sides and below reach up to the address bar.
+  When the file list is narrow the buttons wrap onto a second line.
+
 ## 0.1.1 — 2026-11-24
 
 - Quick View: text files can be edited in place. Ctrl+S saves, keeping the file's encoding (UTF-8 with or

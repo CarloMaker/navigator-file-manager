@@ -108,6 +108,9 @@ public sealed class AppSettings
     /// <summary>L'albero delle cartelle si apre fino alla cartella mostrata nella scheda.</summary>
     public bool SyncFolderTree { get; set; } = true;
 
+    /// <summary>Barra con le unità (C, D, E...) sopra l'albero delle cartelle, come in CubicExplorer.</summary>
+    public bool ShowDriveBar { get; set; } = true;
+
     /// <summary>Badge di stato Git (aggiornato, modificato, nuovo...) sulle icone della lista.</summary>
     public bool ShowGitStatus { get; set; } = true;
 
